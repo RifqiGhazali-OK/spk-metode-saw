@@ -1,0 +1,57 @@
+<div class="page-heading">
+    <div class="page-title mb-4">
+        <h3>Detail Perhitungan SAW</h3>
+        <p class="text-subtitle text-muted">Normalisasi dan pembobotan nilai</p>
+    </div>
+
+    <?php foreach ($alternatif as $alt): ?>
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0">Alternatif: <?= htmlspecialchars($alt['kode']) ?> - <?= htmlspecialchars($alt['nama']) ?></h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Kriteria</th>
+                                <th>Nilai Mentah</th>
+                                <th>Normalisasi</th>
+                                <th>Bobot</th>
+                                <th>Nilai Terbobot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($kriteria as $krit): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($krit['kode']) ?> - <?= htmlspecialchars($krit['nama']) ?></td>
+                                    <td><?= number_format($matrix[$alt['id']][$krit['id']], 2) ?></td>
+                                    <td><?= number_format($normalized[$alt['id']][$krit['id']], 4) ?></td>
+                                    <td><?= number_format($krit['bobot'], 4) ?> (<?= $krit['bobot'] * 100 ?>%)</td>
+                                    <td><?= number_format($weighted[$alt['id']][$krit['id']], 4) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <th colspan="4" class="text-end">Total Nilai Akhir (Vi)</th>
+                                <th><?= number_format($final[$alt['id']], 4) ?></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            <form action="<?= base_url('user/simpan_hasil') ?>" method="post">
+                <input type="hidden" name="final" value='<?= json_encode($final) ?>'>
+                <input type="hidden" name="periode_id" value="<?= $periode_id ?>">
+                <button type="submit" class="btn btn-primary btn-lg">Simpan Hasil & Lihat Ranking</button>
+                <a href="<?= base_url('user/penilaian?periode_id=' . $periode_id) ?>" class="btn btn-secondary btn-lg">Kembali ke Input</a>
+            </form>
+        </div>
+    </div>
+</div>

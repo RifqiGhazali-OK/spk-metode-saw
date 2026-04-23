@@ -1,0 +1,47 @@
+# Ignore cache dan log
+application/cache/*
+!application/cache/index.html
+
+application/logs/*
+!application/logs/index.html
+
+!application/*/.htaccess
+
+# Ignore environment & konfigurasi sensitif
+.env
+.htaccess
+
+# Ignore database & file SQL
+*.sql
+*.sqlite
+tests/mocks/database/ci_test.sqlite
+
+# Ignore folder uploads
+uploads/
+
+# Ignore vendor & composer
+/vendor/
+composer.lock
+
+# Ignore user guide build
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+/nbproject/
+.idea/*
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Ignore test results
+/tests/tests/
+/tests/results/
