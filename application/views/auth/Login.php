@@ -1,137 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DSS Kontrak Perpanjangan Karyawan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login - SPK SAW | Sistem Pendukung Keputusan Metode SAW</title>
+
+    <!-- Mazer CSS & Bootstrap Icons -->
+    <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app-dark.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/extensions/bootstrap-icons/font/bootstrap-icons.min.css') ?>">
+
     <style>
         body {
-            background-color: #1a1a2e;
-            height: 100vh;
+            background: #435ebe;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
         }
 
-        .login-card {
-            background: #16213e;
+        .card-login {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 400px;
-            padding: 30px;
+            max-width: 420px;
+            background: #fff;
         }
 
-        .logo-container {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .logo-q {
-            width: 80px;
-            height: 80px;
-            background: #4e00c2;
-            color: white;
-            font-size: 50px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20%;
-            box-shadow: 0 0 15px rgba(78, 0, 194, 0.6);
+        .card-body {
+            padding: 2rem;
         }
 
         .system-name {
-            color: #ffffff;
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
             font-weight: 600;
-        }
-
-        .company-name {
-            color: #94a3b8;
-            font-size: 0.85rem;
+            color: #212529;
+            margin-bottom: 0.5rem;
             text-align: center;
-            margin-bottom: 25px;
         }
 
-        .form-label {
-            color: #cbd5e1;
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
         }
 
         .form-control {
-            background: #0f3460;
-            border: 1px solid #1a1a2e;
-            color: white;
-            padding: 12px;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #dee2e6;
         }
 
         .form-control:focus {
-            background: #1a1a2e;
-            border-color: #4e00c2;
-            color: white;
-            box-shadow: none;
+            border-color: #435ebe;
+            box-shadow: 0 0 0 0.2rem rgba(67, 94, 190, 0.25);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem 0 0 0.5rem;
+            border: 1px solid #dee2e6;
+            border-right: none;
         }
 
         .btn-login {
-            background: #4e00c2;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-weight: 600;
+            background: #435ebe;
             border: none;
-            padding: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-top: 10px;
-            transition: 0.3s;
         }
 
         .btn-login:hover {
-            background: #3a0091;
-            transform: translateY(-2px);
+            background: #2d3d8a;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            background: #f8f9fa;
+            border-radius: 0 0.5rem 0.5rem 0;
+            border-left: none;
         }
 
         .alert {
-            font-size: 0.9rem;
-            border-radius: 10px;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6c757d;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-card">
-        <div class="logo-container">
-            <div class="logo-q">Q</div>
+    <div class="card card-login shadow-sm">
+        <div class="card-body">
+            <div class="system-name">SPK SAW</div>
+            <div class="subtitle">Sistem Pendukung Keputusan Metode SAW</div>
+
+            <?php if ($this->session->flashdata('error')): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= $this->session->flashdata('error') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?= base_url('auth/process'); ?>" method="POST">
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="email" name="email" class="form-control" id="email" placeholder="Masukkan email anda" required autofocus>
+                    </div>
+                </div>
+
+                <!-- Password with toggle view -->
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Masukkan password anda" required>
+                        <span class="input-group-text toggle-password" id="togglePassword">
+                            <i class="bi bi-eye-slash-fill" id="eyeIcon"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> MASUK
+                    </button>
+                </div>
+            </form>
+
+            <footer>
+                <?= date('Y') ?> &copy; (19220941 - 19221061)
+            </footer>
         </div>
-        <div class="system-name">DSS Perpanjangan Kontrak</div>
-        <div class="company-name">PT. Internusa Jayaabadi Sentosa</div>
-
-        <?php if ($this->session->flashdata('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?php echo $this->session->flashdata('error'); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <form action="<?php echo base_url('auth/process'); ?>" method="POST">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" name="email" class="form-control" id="email" placeholder="nama@gmail.com" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" id="password" placeholder="••••••••" required>
-            </div>
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-login">MASUK SISTEM</button>
-            </div>
-        </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle Password Visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeIcon.classList.toggle('bi-eye-slash-fill');
+            eyeIcon.classList.toggle('bi-eye-fill');
+        });
+    </script>
+
+    <!-- Mazer JS -->
+    <script src="<?= base_url('assets/mazer/dist/assets/compiled/js/app.js') ?>"></script>
 </body>
 
 </html>
