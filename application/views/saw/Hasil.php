@@ -41,13 +41,28 @@
                                 <?php if (!empty($hasil)): ?>
                                     <?php foreach ($hasil as $row): ?>
                                         <tr>
-                                            <td><span class="badge bg-primary">#<?= $row['ranking'] ?></span></td>
-                                            <td><?= htmlspecialchars($row['kode']) ?></td>
-                                            <td><?= htmlspecialchars($row['nama_alternatif']) ?></td>
-                                            <td><?= htmlspecialchars($row['jabatan'] ?? '-') ?></td>
-                                            <td><?= number_format($row['nilai_akhir'], 4) ?></td>
-                                            <td>
-                                                <span class="badge <?= $row['status'] == 'Layak' ? 'bg-success' : 'bg-danger' ?>">
+                                            <td style="white-space: nowrap;">
+                                                <?php if ($row['ranking'] == 1): ?>
+                                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-trophy-fill me-1"></i> #1</span>
+                                                <?php elseif ($row['ranking'] <= 3): ?>
+                                                    <span class="badge bg-light-primary text-primary px-3 py-2 rounded-pill">#<?= $row['ranking'] ?></span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary bg-opacity-25 text-dark px-3 py-2 rounded-pill">#<?= $row['ranking'] ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td style="white-space: nowrap;"><span class="badge bg-light text-dark px-3 py-2 rounded-pill"><?= htmlspecialchars($row['kode']) ?></span></td>
+                                            <td class="fw-semibold"><?= htmlspecialchars($row['nama_alternatif']) ?></td>
+                                            <td class="text-muted"><?= htmlspecialchars($row['jabatan'] ?? '-') ?></td>
+                                            <td style="white-space: nowrap;">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="progress flex-grow-1" style="height:8px; min-width: 80px;">
+                                                        <div class="progress-bar bg-primary" style="width: <?= $row['nilai_akhir'] * 100 ?>%"></div>
+                                                    </div>
+                                                    <span class="small fw-semibold"><?= number_format($row['nilai_akhir'], 4) ?></span>
+                                                </div>
+                                            </td>
+                                            <td style="white-space: nowrap;">
+                                                <span class="badge <?= $row['status'] == 'Layak' ? 'bg-success' : 'bg-danger' ?> px-3 py-2 rounded-pill">
                                                     <?= $row['status'] ?>
                                                 </span>
                                             </td>

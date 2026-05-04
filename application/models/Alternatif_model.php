@@ -31,6 +31,13 @@ class Alternatif_model extends CI_Model
         return $this->db->count_all_results($this->table);
     }
 
+    // Untuk mengambil semua alternatif global (user_id = 1) - digunakan oleh admin untuk penilaian
+    public function get_all_global()
+    {
+        $this->db->where('user_id', 1);
+        return $this->db->get($this->table)->result_array();
+    }
+
     // Method CRUD standar (tanpa periode, admin akan menentukan periode_id saat insert)
     public function get_by_id($id)
     {
@@ -68,4 +75,4 @@ class Alternatif_model extends CI_Model
         $this->db->where('id !=', $id);
         return $this->db->get($this->table)->row();
     }
-}   
+}

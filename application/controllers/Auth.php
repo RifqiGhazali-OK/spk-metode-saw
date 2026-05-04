@@ -14,11 +14,8 @@ class Auth extends CI_Controller
     public function index()
     {
         if ($this->session->userdata('logged_in')) {
-            if ($this->session->userdata('role') == 'admin') {
-                redirect('admin/dashboard');
-            } else {
-                redirect('user/dashboard');
-            }
+            // Semua user langsung ke dashboard admin (single user)
+            redirect('admin/dashboard');
         }
         $this->load->view('auth/login');
     }
@@ -31,21 +28,17 @@ class Auth extends CI_Controller
         $user = $this->User_model->login($identity, $password);
 
         if ($user) {
+            // Paksa role admin, karena kita akan menggunakan single user (manager)
             $ses_data = array(
                 'id'        => $user->id,
                 'nama'      => $user->full_name ?? $user->username ?? $user->email,
                 'username'  => $user->username,
                 'email'     => $user->email,
-                'role'      => $user->role,
+                'role'      => 'admin',   // pastikan role admin
                 'logged_in' => TRUE
             );
             $this->session->set_userdata($ses_data);
-
-            if ($user->role == 'admin') {
-                redirect('admin/dashboard');
-            } else {
-                redirect('user/dashboard');
-            }
+            redirect('admin/dashboard');
         } else {
             $this->session->set_flashdata('error', 'Email/Username atau password salah.');
             redirect('auth');

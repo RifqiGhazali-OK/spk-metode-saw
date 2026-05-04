@@ -9,9 +9,16 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
                     <h4 class="card-title mb-0">Matriks Penilaian</h4>
-                    <button id="btnProsesSAW" class="btn btn-primary">
-                        <i class="bi bi-calculator-fill me-1"></i> Proses Hitung SAW
-                    </button>
+                    <div>
+                        <label class="form-label me-2">Periode:</label>
+                        <select id="periode_id" class="form-select d-inline-block w-auto">
+                            <?php foreach ($periode_list as $p): ?>
+                                <option value="<?= $p['id'] ?>" <?= ($p['id'] == $periode_id_selected) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['nama']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <div class="card-body">
                     <?php if ($this->session->flashdata('success')): ?>
@@ -21,29 +28,17 @@
                         <div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div>
                     <?php endif; ?>
 
-                    <!-- Dropdown Periode -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Periode Penilaian</label>
-                            <select id="periode_id" class="form-select">
-                                <?php foreach ($periode_list as $p): ?>
-                                    <option value="<?= $p['id'] ?>" <?= ($p['id'] == $periode_id_selected) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($p['nama']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <small class="text-muted">Pilih periode, data akan dimuat ulang</small>
-                        </div>
-                    </div>
-
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle">
+                        <table class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="min-width:180px">Alternatif / Kriteria</th>
+                                    <th rowspan="2" class="text-center" style="width: 180px; vertical-align: middle;">Alternatif</th>
+                                    <th colspan="<?= count($kriteria) ?>" class="text-center">Kriteria</th>
+                                </tr>
+                                <tr>
                                     <?php foreach ($kriteria as $k): ?>
-                                        <th class="text-center">
-                                            <?= htmlspecialchars($k['kode']) ?><br>
+                                        <th class="text-center" style="min-width: 110px;">
+                                            <strong><?= htmlspecialchars($k['kode']) ?></strong><br>
                                             <small class="text-muted"><?= htmlspecialchars($k['nama']) ?></small><br>
                                             <small class="fw-bold">Bobot: <?= number_format($k['bobot'] * 100, 2) ?>%</small>
                                         </th>
@@ -61,11 +56,14 @@
                                                 <?php endif; ?>
                                             </td>
                                             <?php foreach ($kriteria as $k): ?>
-                                                <?php $nilai = isset($nilai_map[$alt['id']][$k['id']]) ? $nilai_map[$alt['id']][$k['id']] : ''; ?>
+                                                <?php
+                                                $nilai = isset($nilai_map[$alt['id']][$k['id']]) ? $nilai_map[$alt['id']][$k['id']] : '';
+                                                $nilai_formatted = (is_numeric($nilai)) ? number_format($nilai, 2, '.', '') : '';
+                                                ?>
                                                 <td class="text-center">
                                                     <input type="number" step="0.01" class="form-control form-control-sm text-center nilai-input"
                                                         data-alternatif="<?= $alt['id'] ?>" data-kriteria="<?= $k['id'] ?>"
-                                                        value="<?= htmlspecialchars($nilai) ?>" placeholder="0-100" style="min-width:90px;">
+                                                        value="<?= $nilai_formatted ?>" placeholder="0-100" style="width: 90px; margin: 0 auto;">
                                                 </td>
                                             <?php endforeach; ?>
                                         </tr>
@@ -74,13 +72,18 @@
                                     <tr>
                                         <td colspan="<?= count($kriteria) + 1 ?>" class="text-center text-muted py-4">
                                             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                            Belum ada data alternatif. Silakan hubungi admin.
+                                            Belum ada data alternatif. Silakan tambah data alternatif terlebih dahulu.
                                         </td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div class="card-footer bg-transparent text-end">
+                    <button id="btnProsesSAW" class="btn btn-primary">
+                        <i class="bi bi-calculator-fill me-1"></i> Proses Hitung SAW
+                    </button>
                 </div>
             </div>
         </div>
@@ -90,13 +93,12 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Ketika periode berubah, reload halaman dengan periode_id baru
+        // Ganti periode
         $('#periode_id').on('change', function() {
-            var periode_id = $(this).val();
-            window.location.href = '<?= base_url("user/penilaian") ?>?periode_id=' + periode_id;
+            window.location.href = '<?= base_url("saw/penilaian") ?>?periode_id=' + $(this).val();
         });
 
-        // Auto-save nilai
+        // Auto-save
         $('.nilai-input').on('change', function() {
             var input = $(this);
             var val = input.val();
@@ -106,13 +108,14 @@
                 return;
             }
             var periode_id = $('#periode_id').val();
+            var sendVal = val === '' ? 0 : parseFloat(val);
             $.ajax({
-                url: '<?= base_url("user/penilaian_save") ?>',
+                url: '<?= base_url("saw/penilaian_save") ?>',
                 type: 'POST',
                 data: {
                     alternatif_id: input.data('alternatif'),
                     kriteria_id: input.data('kriteria'),
-                    nilai: val === '' ? 0 : val,
+                    nilai: sendVal,
                     periode_id: periode_id
                 },
                 success: function() {
@@ -125,11 +128,11 @@
             });
         });
 
-        // Tombol proses SAW: arahkan ke proses_saw dengan periode_id
+        // Tombol proses
         $('#btnProsesSAW').click(function() {
             var periode_id = $('#periode_id').val();
             if (confirm('Proses perhitungan SAW? Pastikan semua nilai sudah diisi.')) {
-                window.location.href = '<?= base_url("user/proses_saw") ?>?periode_id=' + periode_id;
+                window.location.href = '<?= base_url("saw/proses_saw") ?>?periode_id=' + periode_id;
             }
         });
     });

@@ -1,251 +1,621 @@
--- phpMyAdmin SQL Dump
--- version 5.2.0
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Waktu pembuatan: 20 Apr 2026 pada 11.43
--- Versi server: 10.4.27-MariaDB
--- Versi PHP: 7.4.33
+DROP DATABASE IF EXISTS `db_spk_saw`;
+
+CREATE DATABASE `db_spk_saw` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+USE `db_spk_saw`;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+
 START TRANSACTION;
-SET time_zone = "+00:00";
 
+CREATE TABLE `periode` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `nama` varchar(100) NOT NULL,
+    `tanggal_mulai` date NOT NULL,
+    `is_active` tinyint(1) DEFAULT 0,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `db_spk_saw`
---
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `alternatif`
---
-
-CREATE TABLE `alternatif` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT 0,
-  `kode` varchar(10) NOT NULL,
-  `nama` varchar(100) NOT NULL,
-  `jabatan` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `alternatif`
---
-
-INSERT INTO `alternatif` (`id`, `user_id`, `kode`, `nama`, `jabatan`, `created_at`) VALUES
-(2, 1, 'A2', 'Karyawan C', 'Staff HR', '2026-04-18 10:46:55'),
-(3, 1, 'A3', 'Karyawan C', 'Staff Finance', '2026-04-18 10:46:55'),
-(4, 1, 'A4', 'Karyawan D', 'Staff Bisnis Proses', '2026-04-18 10:46:55'),
-(6, 1, 'A2', 'Kayla', 'Supervisor it', '2026-04-20 07:41:36');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `kriteria`
---
-
-CREATE TABLE `kriteria` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT 0,
-  `kode` varchar(10) NOT NULL,
-  `nama` varchar(100) NOT NULL,
-  `tipe` enum('benefit','cost') NOT NULL DEFAULT 'benefit',
-  `bobot` decimal(5,4) NOT NULL DEFAULT 0.0000 COMMENT 'Total semua bobot harus = 1',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `kriteria`
---
-
-INSERT INTO `kriteria` (`id`, `user_id`, `kode`, `nama`, `tipe`, `bobot`, `created_at`) VALUES
-(1, 1, 'K1', 'Produktivitas', 'benefit', '0.3000', '2026-04-18 10:46:56'),
-(2, 1, 'K2', 'Kualitas Kerja', 'benefit', '0.2500', '2026-04-18 10:46:56'),
-(3, 1, 'K3', 'Konsistensi Kinerja', 'benefit', '0.2000', '2026-04-18 10:46:56'),
-(4, 1, 'K4', 'Ketepatan Waktu', 'benefit', '0.1500', '2026-04-18 10:46:56'),
-(5, 1, 'K5', 'Hasil Kerja', 'benefit', '0.1000', '2026-04-18 10:46:56');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `saw_hasil`
---
-
-CREATE TABLE `saw_hasil` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT 0,
-  `alternatif_id` int(11) NOT NULL,
-  `nilai_akhir` decimal(10,6) NOT NULL,
-  `ranking` int(11) NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'Tidak Layak',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `saw_hasil`
---
-
-INSERT INTO `saw_hasil` (`id`, `user_id`, `alternatif_id`, `nilai_akhir`, `ranking`, `status`, `created_at`) VALUES
-(1, 1, 4, '0.941200', 1, 'Layak', '2026-04-18 10:46:56'),
-(3, 1, 3, '0.891300', 3, 'Layak', '2026-04-18 10:46:56'),
-(4, 1, 2, '0.812400', 4, 'Pertimbangkan', '2026-04-18 10:46:56');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `saw_penilaian`
---
-
-CREATE TABLE `saw_penilaian` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT 0,
-  `alternatif_id` int(11) NOT NULL,
-  `kriteria_id` int(11) NOT NULL,
-  `nilai` decimal(10,4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `saw_penilaian`
---
-
-INSERT INTO `saw_penilaian` (`id`, `user_id`, `alternatif_id`, `kriteria_id`, `nilai`) VALUES
-(6, 1, 2, 1, '80.0000'),
-(7, 1, 2, 2, '82.0000'),
-(8, 1, 2, 3, '70.0000'),
-(9, 1, 2, 4, '61.0000'),
-(10, 1, 2, 5, '80.0000'),
-(11, 1, 3, 1, '90.0000'),
-(12, 1, 3, 2, '85.0000'),
-(13, 1, 3, 3, '70.0000'),
-(14, 1, 3, 4, '62.0000'),
-(15, 1, 3, 5, '54.9900'),
-(16, 1, 4, 1, '90.0000'),
-(17, 1, 4, 2, '91.0000'),
-(18, 1, 4, 3, '71.0000'),
-(19, 1, 4, 4, '53.0000'),
-(20, 1, 4, 5, '89.0000');
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `users`
---
+INSERT INTO
+    `periode` (
+        `nama`,
+        `tanggal_mulai`,
+        `is_active`
+    )
+VALUES (
+        'Januari 2026',
+        '2026-01-01',
+        0
+    ),
+    (
+        'Februari 2026',
+        '2026-02-01',
+        0
+    ),
+    ('Maret 2026', '2026-03-01', 0),
+    ('April 2026', '2026-04-01', 1),
+    ('Mei 2026', '2026-05-01', 0),
+    ('Juni 2026', '2026-06-01', 0),
+    ('Juli 2026', '2026-07-01', 0),
+    (
+        'Agustus 2026',
+        '2026-08-01',
+        0
+    ),
+    (
+        'September 2026',
+        '2026-09-01',
+        0
+    ),
+    (
+        'Oktober 2026',
+        '2026-10-01',
+        0
+    ),
+    (
+        'November 2026',
+        '2026-11-01',
+        0
+    ),
+    (
+        'Desember 2026',
+        '2026-12-01',
+        0
+    );
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','user') NOT NULL DEFAULT 'user',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `username` varchar(50) NOT NULL,
+    `email` varchar(100) NOT NULL,
+    `password` varchar(255) NOT NULL,
+    `role` enum('admin', 'user') NOT NULL DEFAULT 'user',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `email` (`email`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
---
--- Dumping data untuk tabel `users`
---
+INSERT INTO
+    `users` (
+        `username`,
+        `email`,
+        `password`,
+        `role`
+    )
+VALUES (
+        'Manager HRD',
+        'admin@gmail.com',
+        MD5('admin123'),
+        'admin'
+    );
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
-(1, 'Manager HRD', 'admin@gmail.com', '0192023a7bbd73250516f069df18b500', 'admin', '2026-04-18 10:46:55'),
-(2, 'rifqi', 'rifqi@gmail.com', '6ad14ba9986e3615423dfca256d04e3f', 'user', '2026-04-20 09:43:11');
+CREATE TABLE `kriteria` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL DEFAULT 1,
+    `kode` varchar(10) NOT NULL,
+    `nama` varchar(100) NOT NULL,
+    `tipe` enum('benefit', 'cost') NOT NULL DEFAULT 'benefit',
+    `bobot` decimal(5, 4) NOT NULL DEFAULT 0.0000,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
---
--- Indexes for dumped tables
---
+INSERT INTO
+    `kriteria` (
+        `user_id`,
+        `kode`,
+        `nama`,
+        `tipe`,
+        `bobot`
+    )
+VALUES (
+        1,
+        'K1',
+        'Produktivitas',
+        'benefit',
+        0.3000
+    ),
+    (
+        1,
+        'K2',
+        'Kualitas Kerja',
+        'benefit',
+        0.2500
+    ),
+    (
+        1,
+        'K3',
+        'Konsistensi Kinerja',
+        'benefit',
+        0.2000
+    ),
+    (
+        1,
+        'K4',
+        'Ketepatan Waktu',
+        'benefit',
+        0.1500
+    ),
+    (
+        1,
+        'K5',
+        'Hasil Kerja',
+        'benefit',
+        0.1000
+    );
 
---
--- Indeks untuk tabel `alternatif`
---
-ALTER TABLE `alternatif`
-  ADD PRIMARY KEY (`id`);
+CREATE TABLE `alternatif` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `periode_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL DEFAULT 1,
+    `kode` varchar(10) NOT NULL,
+    `nama` varchar(100) NOT NULL,
+    `jabatan` varchar(100) DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `periode_id` (`periode_id`),
+    CONSTRAINT `fk_alternatif_periode` FOREIGN KEY (`periode_id`) REFERENCES `periode` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
---
--- Indeks untuk tabel `kriteria`
---
-ALTER TABLE `kriteria`
-  ADD PRIMARY KEY (`id`);
+INSERT INTO
+    `alternatif` (
+        `periode_id`,
+        `user_id`,
+        `kode`,
+        `nama`,
+        `jabatan`
+    )
+VALUES (
+        1,
+        1,
+        'A1',
+        'Budi Santoso',
+        'Staff IT'
+    ),
+    (
+        1,
+        1,
+        'A2',
+        'Siti Aminah',
+        'Staff HR'
+    ),
+    (
+        1,
+        1,
+        'A3',
+        'Agus Wijaya',
+        'Staff Finance'
+    ),
+    (
+        1,
+        1,
+        'A4',
+        'Dewi Kartika',
+        'Staff Marketing'
+    ),
+    (
+        1,
+        1,
+        'A5',
+        'Eko Prasetyo',
+        'Staff Operasional'
+    ),
+    (
+        2,
+        1,
+        'A1',
+        'Ahmad Fauzi',
+        'Staff IT'
+    ),
+    (
+        2,
+        1,
+        'A2',
+        'Nurul Hidayah',
+        'Staff HR'
+    ),
+    (
+        2,
+        1,
+        'A3',
+        'Dwi Cahyono',
+        'Staff Finance'
+    ),
+    (
+        2,
+        1,
+        'A4',
+        'Sri Wahyuni',
+        'Staff Marketing'
+    ),
+    (
+        2,
+        1,
+        'A5',
+        'Mulyono',
+        'Staff Operasional'
+    ),
+    (
+        3,
+        1,
+        'A1',
+        'Hendra Gunawan',
+        'Staff IT'
+    ),
+    (
+        3,
+        1,
+        'A2',
+        'Rina Andriani',
+        'Staff HR'
+    ),
+    (
+        3,
+        1,
+        'A3',
+        'Teguh Purnomo',
+        'Staff Finance'
+    ),
+    (
+        3,
+        1,
+        'A4',
+        'Lestari Mulyani',
+        'Staff Marketing'
+    ),
+    (
+        3,
+        1,
+        'A5',
+        'Yanto',
+        'Staff Operasional'
+    ),
+    (
+        4,
+        1,
+        'A1',
+        'Rizki Anugrah',
+        'Staff IT'
+    ),
+    (
+        4,
+        1,
+        'A2',
+        'Dian Sastro',
+        'Staff HR'
+    ),
+    (
+        4,
+        1,
+        'A3',
+        'Wahyu Kurniawan',
+        'Staff Finance'
+    ),
+    (
+        4,
+        1,
+        'A4',
+        'Citra Kirana',
+        'Staff Marketing'
+    ),
+    (
+        4,
+        1,
+        'A5',
+        'Bagus Wicaksono',
+        'Staff Operasional'
+    ),
+    (
+        5,
+        1,
+        'A1',
+        'Irwan Hakim',
+        'Staff IT'
+    ),
+    (
+        5,
+        1,
+        'A2',
+        'Farida Nurjanah',
+        'Staff HR'
+    ),
+    (
+        5,
+        1,
+        'A3',
+        'Haryanto',
+        'Staff Finance'
+    ),
+    (
+        5,
+        1,
+        'A4',
+        'Umi Kalsum',
+        'Staff Marketing'
+    ),
+    (
+        5,
+        1,
+        'A5',
+        'Slamet Riyadi',
+        'Staff Operasional'
+    ),
+    (
+        6,
+        1,
+        'A1',
+        'Gunawan',
+        'Staff IT'
+    ),
+    (
+        6,
+        1,
+        'A2',
+        'Maya Sari',
+        'Staff HR'
+    ),
+    (
+        6,
+        1,
+        'A3',
+        'Bambang Sutrisno',
+        'Staff Finance'
+    ),
+    (
+        6,
+        1,
+        'A4',
+        'Nadia Putri',
+        'Staff Marketing'
+    ),
+    (
+        6,
+        1,
+        'A5',
+        'Rudi Hartono',
+        'Staff Operasional'
+    ),
+    (
+        7,
+        1,
+        'A1',
+        'Suharto',
+        'Staff IT'
+    ),
+    (
+        7,
+        1,
+        'A2',
+        'Rahmawati',
+        'Staff HR'
+    ),
+    (
+        7,
+        1,
+        'A3',
+        'Edi Susanto',
+        'Staff Finance'
+    ),
+    (
+        7,
+        1,
+        'A4',
+        'Nur Azizah',
+        'Staff Marketing'
+    ),
+    (
+        7,
+        1,
+        'A5',
+        'Joko Prasetyo',
+        'Staff Operasional'
+    ),
+    (
+        8,
+        1,
+        'A1',
+        'Aditya Permana',
+        'Staff IT'
+    ),
+    (
+        8,
+        1,
+        'A2',
+        'Ratna Dewi',
+        'Staff HR'
+    ),
+    (
+        8,
+        1,
+        'A3',
+        'Hendro',
+        'Staff Finance'
+    ),
+    (
+        8,
+        1,
+        'A4',
+        'Dewi Sartika',
+        'Staff Marketing'
+    ),
+    (
+        8,
+        1,
+        'A5',
+        'Purnomo',
+        'Staff Operasional'
+    ),
+    (
+        9,
+        1,
+        'A1',
+        'Cahyo',
+        'Staff IT'
+    ),
+    (
+        9,
+        1,
+        'A2',
+        'Indah Lestari',
+        'Staff HR'
+    ),
+    (
+        9,
+        1,
+        'A3',
+        'Doni Setiawan',
+        'Staff Finance'
+    ),
+    (
+        9,
+        1,
+        'A4',
+        'Lilis',
+        'Staff Marketing'
+    ),
+    (
+        9,
+        1,
+        'A5',
+        'Aris Munandar',
+        'Staff Operasional'
+    ),
+    (
+        10,
+        1,
+        'A1',
+        'Fajar Nugroho',
+        'Staff IT'
+    ),
+    (
+        10,
+        1,
+        'A2',
+        'Lina Marlina',
+        'Staff HR'
+    ),
+    (
+        10,
+        1,
+        'A3',
+        'Haryanto',
+        'Staff Finance'
+    ),
+    (
+        10,
+        1,
+        'A4',
+        'Rina Melati',
+        'Staff Marketing'
+    ),
+    (
+        10,
+        1,
+        'A5',
+        'Sigit Purnomo',
+        'Staff Operasional'
+    ),
+    (
+        11,
+        1,
+        'A1',
+        'Andi Wijaya',
+        'Staff IT'
+    ),
+    (
+        11,
+        1,
+        'A2',
+        'Fitri Handayani',
+        'Staff HR'
+    ),
+    (
+        11,
+        1,
+        'A3',
+        'Tono',
+        'Staff Finance'
+    ),
+    (
+        11,
+        1,
+        'A4',
+        'Tri Mulyani',
+        'Staff Marketing'
+    ),
+    (
+        11,
+        1,
+        'A5',
+        'Rudi Hartono',
+        'Staff Operasional'
+    ),
+    (
+        12,
+        1,
+        'A1',
+        'Slamet',
+        'Staff IT'
+    ),
+    (
+        12,
+        1,
+        'A2',
+        'Karina',
+        'Staff HR'
+    ),
+    (
+        12,
+        1,
+        'A3',
+        'Iwan',
+        'Staff Finance'
+    ),
+    (
+        12,
+        1,
+        'A4',
+        'Winda',
+        'Staff Marketing'
+    ),
+    (
+        12,
+        1,
+        'A5',
+        'Heri',
+        'Staff Operasional'
+    );
 
---
--- Indeks untuk tabel `saw_hasil`
---
-ALTER TABLE `saw_hasil`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alternatif_id` (`alternatif_id`);
+CREATE TABLE `saw_penilaian` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL DEFAULT 1,
+    `periode_id` int(11) NOT NULL,
+    `alternatif_id` int(11) NOT NULL,
+    `kriteria_id` int(11) NOT NULL,
+    `nilai` decimal(10, 4) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `alternatif_id` (`alternatif_id`),
+    KEY `kriteria_id` (`kriteria_id`),
+    KEY `periode_id` (`periode_id`),
+    CONSTRAINT `fk_penilaian_alternatif` FOREIGN KEY (`alternatif_id`) REFERENCES `alternatif` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_penilaian_kriteria` FOREIGN KEY (`kriteria_id`) REFERENCES `kriteria` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_penilaian_periode` FOREIGN KEY (`periode_id`) REFERENCES `periode` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
---
--- Indeks untuk tabel `saw_penilaian`
---
-ALTER TABLE `saw_penilaian`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `alternatif_id` (`alternatif_id`),
-  ADD KEY `kriteria_id` (`kriteria_id`);
+CREATE TABLE `saw_hasil` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL DEFAULT 1,
+    `periode_id` int(11) NOT NULL,
+    `alternatif_id` int(11) NOT NULL,
+    `nilai_akhir` decimal(10, 6) NOT NULL,
+    `ranking` int(11) NOT NULL,
+    `status` varchar(20) NOT NULL DEFAULT 'Tidak Layak',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `alternatif_id` (`alternatif_id`),
+    KEY `periode_id` (`periode_id`),
+    CONSTRAINT `fk_hasil_alternatif` FOREIGN KEY (`alternatif_id`) REFERENCES `alternatif` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_hasil_periode` FOREIGN KEY (`periode_id`) REFERENCES `periode` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
---
--- Indeks untuk tabel `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT untuk tabel yang dibuang
---
-
---
--- AUTO_INCREMENT untuk tabel `alternatif`
---
-ALTER TABLE `alternatif`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT untuk tabel `kriteria`
---
-ALTER TABLE `kriteria`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT untuk tabel `saw_hasil`
---
-ALTER TABLE `saw_hasil`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT untuk tabel `saw_penilaian`
---
-ALTER TABLE `saw_penilaian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
-
---
--- AUTO_INCREMENT untuk tabel `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
---
-
---
--- Ketidakleluasaan untuk tabel `saw_hasil`
---
-ALTER TABLE `saw_hasil`
-  ADD CONSTRAINT `fk_hasil_alternatif` FOREIGN KEY (`alternatif_id`) REFERENCES `alternatif` (`id`) ON DELETE CASCADE;
-
---
--- Ketidakleluasaan untuk tabel `saw_penilaian`
---
-ALTER TABLE `saw_penilaian`
-  ADD CONSTRAINT `fk_penilaian_alternatif` FOREIGN KEY (`alternatif_id`) REFERENCES `alternatif` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_penilaian_kriteria` FOREIGN KEY (`kriteria_id`) REFERENCES `kriteria` (`id`) ON DELETE CASCADE;
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

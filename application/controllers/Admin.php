@@ -27,7 +27,19 @@ class Admin extends CI_Controller
     }
 
     // ============================================
-    // PROFIL ADMIN
+    // HELPER
+    // ============================================
+    private function _get_nama_user()
+    {
+        $nama = $this->session->userdata('nama');
+        if (empty($nama)) {
+            $nama = $this->session->userdata('username') ?? $this->session->userdata('email') ?? 'Administrator';
+        }
+        return $nama;
+    }
+
+    // ============================================
+    // PROFIL
     // ============================================
     public function profil()
     {
@@ -52,7 +64,6 @@ class Admin extends CI_Controller
         $new_password = $this->input->post('new_password');
         $confirm = $this->input->post('confirm_password');
 
-        // Validasi
         if ($new_password !== $confirm) {
             $this->session->set_flashdata('error', 'Konfirmasi password baru tidak cocok.');
             redirect('admin/profil');
@@ -63,26 +74,15 @@ class Admin extends CI_Controller
             redirect('admin/profil');
         }
 
-        // Cek password lama
         $user = $this->User_model->get_by_id($user_id);
         if (md5($old_password) !== $user->password) {
             $this->session->set_flashdata('error', 'Password lama salah.');
             redirect('admin/profil');
         }
 
-        // Update password
         $this->User_model->update($user_id, ['password' => md5($new_password)]);
         $this->session->set_flashdata('success', 'Password berhasil diubah.');
         redirect('admin/profil');
-    }
-
-    private function _get_nama_user()
-    {
-        $nama = $this->session->userdata('nama');
-        if (empty($nama)) {
-            $nama = $this->session->userdata('username') ?? $this->session->userdata('email') ?? 'Administrator';
-        }
-        return $nama;
     }
 
     // ============================================
@@ -204,7 +204,7 @@ class Admin extends CI_Controller
     }
 
     // ============================================
-    // MASTER DATA: ALTERNATIF
+    // ALTERNATIF
     // ============================================
     public function alternatif()
     {
@@ -289,7 +289,6 @@ class Admin extends CI_Controller
         redirect('admin/alternatif');
     }
 
-    // Hapus banyak alternatif sekaligus
     public function alternatif_delete_massal()
     {
         $ids = $this->input->post('ids');
@@ -301,148 +300,5 @@ class Admin extends CI_Controller
             $this->session->set_flashdata('error', 'Tidak ada data yang dipilih.');
         }
         redirect('admin/alternatif');
-    }
-
-    // ============================================
-    // USER
-    // ============================================
-    public function user()
-    {
-        $data = [
-            'title'       => 'Kelola User',
-            'active_menu' => 'user',
-            'list'        => $this->User_model->get_all(),
-            'role'        => $this->session->userdata('role'),
-            'nama_user'   => $this->_get_nama_user()
-        ];
-        $data['content'] = $this->load->view('admin/user', $data, TRUE);
-        $this->load->view('layout/template', $data);
-    }
-
-    public function user_store()
-    {
-        // Ambil input dan trim
-        $username = trim($this->input->post('username'));
-        $email = trim($this->input->post('email'));
-        $password = $this->input->post('password');
-        $role = $this->input->post('role');
-
-        $this->form_validation->set_data([
-            'username' => $username,
-            'email'    => $email,
-            'password' => $password,
-            'role'     => $role
-        ]);
-
-        $this->form_validation->set_rules('username', 'Username', 'required|trim|is_unique[users.username]');
-        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');
-        $this->form_validation->set_rules('password', 'Password', 'required|min_length[4]');
-        $this->form_validation->set_rules('role', 'Role', 'required|in_list[admin,user]');
-
-        if ($this->form_validation->run() == FALSE) {
-            $this->session->set_flashdata('error', validation_errors());
-            redirect('admin/user');
-        }
-
-        $this->User_model->insert([
-            'username' => $username,
-            'email'    => $email,
-            'password' => md5($password),
-            'role'     => $role,
-        ]);
-        $this->session->set_flashdata('success', 'User berhasil ditambahkan.');
-        redirect('admin/user');
-    }
-
-    public function user_update($id)
-    {
-        // Ambil input dan trim
-        $username = trim($this->input->post('username'));
-        $email = trim($this->input->post('email'));
-        $password = $this->input->post('password');
-        $role = $this->input->post('role');
-
-        $this->form_validation->set_data([
-            'username' => $username,
-            'email'    => $email,
-            'password' => $password,
-            'role'     => $role
-        ]);
-
-        $this->form_validation->set_rules('username', 'Username', 'required|trim|callback_username_check[' . $id . ']');
-        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|callback_email_check[' . $id . ']');
-        $this->form_validation->set_rules('role', 'Role', 'required|in_list[admin,user]');
-        // Password tidak wajib di update
-
-        if ($this->form_validation->run() == FALSE) {
-            $this->session->set_flashdata('error', validation_errors());
-            redirect('admin/user');
-        }
-
-        $update = [
-            'username' => $username,
-            'email'    => $email,
-            'role'     => $role,
-        ];
-        if (!empty($password)) {
-            $update['password'] = md5($password);
-        }
-        $this->User_model->update($id, $update);
-        $this->session->set_flashdata('success', 'User berhasil diperbarui.');
-        redirect('admin/user');
-    }
-
-    public function user_delete($id)
-    {
-        if ($id == $this->session->userdata('id')) {
-            $this->session->set_flashdata('error', 'Anda tidak dapat menghapus akun sendiri.');
-            redirect('admin/user');
-        }
-        $this->User_model->delete($id);
-        $this->session->set_flashdata('success', 'User berhasil dihapus.');
-        redirect('admin/user');
-    }
-
-    // ============================================
-    // LAPORAN
-    // ============================================
-    public function laporan()
-    {
-        $data = [
-            'title'       => 'Laporan Hasil SAW',
-            'active_menu' => 'laporan',
-            'hasil'       => $this->Hasil_model->get_all_with_user(),
-            'role'        => $this->session->userdata('role'),
-            'nama_user'   => $this->_get_nama_user()
-        ];
-        $data['content'] = $this->load->view('admin/laporan', $data, TRUE);
-        $this->load->view('layout/template', $data);
-    }
-
-    // ============================================
-    // CALLBACK VALIDASI
-    // ============================================
-    public function username_check($username, $id)
-    {
-        $this->db->where('username', trim($username));
-        $this->db->where('id !=', $id);
-        $query = $this->db->get('users');
-        if ($query->num_rows() > 0) {
-            $this->form_validation->set_message('username_check', 'Username sudah digunakan.');
-            return FALSE;
-        }
-        return TRUE;
-    }
-
-    public function email_check($email, $id)
-    {
-        $this->db->where('email', trim($email));
-        $this->db->where('id !=', $id);
-        $query = $this->db->get('users');
-        if ($query->num_rows() > 0) {
-            $this->form_validation->set_message('email_check', 'Email sudah digunakan.');
-            return FALSE;
-        }
-        return TRUE;
     }
 }

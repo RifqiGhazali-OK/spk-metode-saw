@@ -1,17 +1,14 @@
 <?php
-$role = $role ?? $this->session->userdata('role');
-if (!$role) {
-    $role = 'admin';
-}
+$role = 'admin'; // single user, role tetap admin
 $active_menu = $active_menu ?? '';
 
-// Ambil nama dari session, jika tidak ada coba dari data user lain
+// Ambil nama dari session
 $nama_user = $nama_user ?? $this->session->userdata('nama');
 if (empty($nama_user)) {
     $nama_user = $this->session->userdata('username') ?? $this->session->userdata('email');
 }
 if (empty($nama_user)) {
-    $nama_user = ($role == 'admin') ? 'Administrator' : 'User';
+    $nama_user = 'Administrator';
 }
 
 $title = $title ?? 'SPK SAW';
@@ -83,7 +80,7 @@ $title = $title ?? 'SPK SAW';
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="<?= base_url($role == 'admin' ? 'admin/dashboard' : 'user/dashboard') ?>" class="sidebar-brand d-flex align-items-center gap-2">
+                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-brand d-flex align-items-center gap-2">
                                 <i class="bi bi-bar-chart-fill text-primary fs-4"></i>
                                 <span style="font-weight:700;font-size:1.1rem;">SPK SAW</span>
                             </a>
@@ -100,68 +97,45 @@ $title = $title ?? 'SPK SAW';
                     <ul class="menu">
                         <li class="sidebar-title">Menu Utama</li>
                         <li class="sidebar-item <?= ($active_menu == 'dashboard') ? 'active' : '' ?>">
-                            <a href="<?= base_url($role == 'admin' ? 'admin/dashboard' : 'user/dashboard') ?>" class="sidebar-link">
+                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
 
-                        <?php if ($role == 'admin') : ?>
-                            <li class="sidebar-title">Master Data</li>
-                            <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
-                                <a href="<?= base_url('admin/kriteria') ?>" class="sidebar-link">
-                                    <i class="bi bi-sliders"></i>
-                                    <span>Kriteria & Bobot</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item <?= ($active_menu == 'alternatif') ? 'active' : '' ?>">
-                                <a href="<?= base_url('admin/alternatif') ?>" class="sidebar-link">
-                                    <i class="bi bi-diagram-3"></i>
-                                    <span>Alternatif</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item <?= ($active_menu == 'user') ? 'active' : '' ?>">
-                                <a href="<?= base_url('admin/user') ?>" class="sidebar-link">
-                                    <i class="bi bi-people-fill"></i>
-                                    <span>Kelola User</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-title">Laporan</li>
-                            <li class="sidebar-item <?= ($active_menu == 'laporan') ? 'active' : '' ?>">
-                                <a href="<?= base_url('admin/laporan') ?>" class="sidebar-link">
-                                    <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                                    <span>Seluruh Alternatif</span>
-                                </a>
-                            </li>
-                        <?php elseif ($role == 'user') : ?>
-                            <li class="sidebar-title">Referensi</li>
-                            <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
-                                <a href="<?= base_url('user/kriteria') ?>" class="sidebar-link">
-                                    <i class="bi bi-sliders"></i>
-                                    <span>Kriteria & Bobot</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-title">Penilaian</li>
-                            <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
-                                <a href="<?= base_url('user/penilaian') ?>" class="sidebar-link">
-                                    <i class="bi bi-pencil-square"></i>
-                                    <span>Input Penilaian</span>
-                                </a>
-                            </li>
-                            <!-- Menu Proses Hitung SAW -->
-                            <li class="sidebar-item <?= ($active_menu == 'hitung') ? 'active' : '' ?>">
-                                <a href="<?= base_url('user/proses_saw') ?>" class="sidebar-link">
-                                    <i class="bi bi-calculator-fill"></i>
-                                    <span>Proses Hitung SAW</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
-                                <a href="<?= base_url('user/hasil') ?>" class="sidebar-link">
-                                    <i class="bi bi-bar-chart-steps"></i>
-                                    <span>Hasil SAW</span>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                        <li class="sidebar-title">Master Data</li>
+                        <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
+                            <a href="<?= base_url('admin/kriteria') ?>" class="sidebar-link">
+                                <i class="bi bi-sliders"></i>
+                                <span>Kriteria & Bobot</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item <?= ($active_menu == 'alternatif') ? 'active' : '' ?>">
+                            <a href="<?= base_url('admin/alternatif') ?>" class="sidebar-link">
+                                <i class="bi bi-diagram-3"></i>
+                                <span>Alternatif</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Penilaian SAW</li>
+                        <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
+                            <a href="<?= base_url('saw/penilaian') ?>" class="sidebar-link">
+                                <i class="bi bi-pencil-square"></i>
+                                <span>Input Penilaian</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item <?= ($active_menu == 'hitung') ? 'active' : '' ?>">
+                            <a href="<?= base_url('saw/proses_saw') ?>" class="sidebar-link">
+                                <i class="bi bi-calculator-fill"></i>
+                                <span>Proses Hitung SAW</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
+                            <a href="<?= base_url('saw/hasil') ?>" class="sidebar-link">
+                                <i class="bi bi-bar-chart-steps"></i>
+                                <span>Hasil SAW</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -183,21 +157,27 @@ $title = $title ?? 'SPK SAW';
                                         </div>
                                         <div class="d-none d-md-block text-end">
                                             <span class="fw-semibold d-block"><?= htmlspecialchars($nama_user) ?></span>
-                                            <small class="text-muted"><?= ucfirst($role) ?></small>
+                                            <small class="text-muted">Admin</small>
                                         </div>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                     <li>
-                                        <h6 class="dropdown-header"><?= ucfirst($role) ?> Panel</h6>
+                                        <h6 class="dropdown-header">Admin Panel</h6>
                                     </li>
-                                    <li><a class="dropdown-item" href="<?= base_url($role == 'admin' ? 'admin/profil' : 'user/profil') ?>">
-                                            <i class="bi bi-person me-2"></i> Profil</a>
+                                    <li>
+                                        <a class="dropdown-item" href="<?= base_url('admin/profil') ?>">
+                                            <i class="bi bi-person me-2"></i> Profil
+                                        </a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item text-danger" href="<?= base_url('auth/logout') ?>"><i class="bi bi-box-arrow-left me-2"></i> Logout</a></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="<?= base_url('auth/logout') ?>">
+                                            <i class="bi bi-box-arrow-left me-2"></i> Logout
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
