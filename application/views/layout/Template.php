@@ -185,10 +185,15 @@ $title = $title ?? 'SPK SAW';
                 </nav>
             </header>
 
+            <?php
+            // Inisialisasi variabel untuk menghindari error undefined di Text Editor
+            $content = isset($content) ? $content : '';
+            ?>
+
             <div id="main-content">
                 <?= $content ?>
             </div>
-
+            
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">

@@ -1,3 +1,8 @@
+<?php
+$user = isset($user) ? $user : (object)[];
+$role = isset($role) ? $role : '';
+?>
+
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Profil Saya</h3>
@@ -14,19 +19,19 @@
                     <table class="table table-borderless">
                         <tr>
                             <th style="width: 30%">Username</th>
-                            <td><?= htmlspecialchars($user->username) ?></td>
+                            <td><?= isset($user->username) ? htmlspecialchars($user->username) : '-' ?></td>
                         </tr>
                         <tr>
                             <th>Email</th>
-                            <td><?= htmlspecialchars($user->email) ?></td>
+                            <td><?= isset($user->email) ? htmlspecialchars($user->email) : '-' ?></td>
                         </tr>
                         <tr>
                             <th>Role</th>
-                            <td><?= ucfirst($user->role) ?></td>
+                            <td><?= isset($user->role) ? ucfirst($user->role) : '-' ?></td>
                         </tr>
                         <tr>
-                            <th>Dibuat
-                            <td><?= date('d M Y', strtotime($user->created_at)) ?></td>
+                            <th>Dibuat</th> <!-- Bug tag penutup </th> yang hilang sudah diperbaiki di sini -->
+                            <td><?= isset($user->created_at) ? date('d M Y', strtotime($user->created_at)) : '-' ?></td>
                         </tr>
                     </table>
                 </div>
@@ -39,10 +44,10 @@
                     <h4 class="card-title mb-0">Ubah Password</h4>
                 </div>
                 <div class="card-body">
-                    <?php if ($this->session->flashdata('success')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('success')): ?>
                         <div class="alert alert-success"><?= $this->session->flashdata('success') ?></div>
                     <?php endif; ?>
-                    <?php if ($this->session->flashdata('error')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('error')): ?>
                         <div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div>
                     <?php endif; ?>
 

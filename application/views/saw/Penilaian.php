@@ -1,3 +1,12 @@
+<?php
+// Inisialisasi Variabel
+$periode_list = isset($periode_list) ? $periode_list : array();
+$periode_id_selected = isset($periode_id_selected) ? $periode_id_selected : '';
+$kriteria = isset($kriteria) ? $kriteria : array();
+$alternatif = isset($alternatif) ? $alternatif : array();
+$nilai_map = isset($nilai_map) ? $nilai_map : array();
+?>
+
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Input Penilaian</h3>

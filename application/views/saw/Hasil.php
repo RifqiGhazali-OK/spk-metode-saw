@@ -1,3 +1,10 @@
+<?php
+// Inisialisasi Variabel
+$periode_list = isset($periode_list) ? $periode_list : array();
+$periode_id_selected = isset($periode_id_selected) ? $periode_id_selected : '';
+$hasil = isset($hasil) ? $hasil : array();
+?>
+
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Hasil Perhitungan SAW</h3>

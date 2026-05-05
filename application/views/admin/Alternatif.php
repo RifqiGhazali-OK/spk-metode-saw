@@ -1,3 +1,9 @@
+<?php
+$periode_list = isset($periode_list) ? $periode_list : array();
+$periode_selected = isset($periode_selected) ? $periode_selected : '';
+$list = isset($list) ? $list : array();
+?>
+
 <div class="page-heading">
     <div class="page-title mb-4">
         <div class="row">
@@ -8,15 +14,14 @@
         </div>
     </div>
 
-    <!-- Filter Periode -->
     <div class="row mb-3">
         <div class="col-md-4">
             <label class="form-label">Filter Periode</label>
             <select id="filter_periode" class="form-select" onchange="location.href='?periode_id='+this.value">
                 <option value="">Semua Periode</option>
                 <?php foreach ($periode_list as $p): ?>
-                    <option value="<?= $p['id'] ?>" <?= ($periode_selected == $p['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($p['nama']) ?>
+                    <option value="<?= isset($p['id']) ? $p['id'] : '' ?>" <?= ($periode_selected == (isset($p['id']) ? $p['id'] : '')) ? 'selected' : '' ?>>
+                        <?= isset($p['nama']) ? htmlspecialchars($p['nama']) : '' ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -38,13 +43,13 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($this->session->flashdata('success')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <?= $this->session->flashdata('success') ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
-                    <?php if ($this->session->flashdata('error')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('error')): ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?= $this->session->flashdata('error') ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -56,9 +61,7 @@
                             <table class="table table-hover table-striped align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="5%">
-                                            <input type="checkbox" id="select_all">
-                                        </th>
+                                        <th width="5%"><input type="checkbox" id="select_all"></th>
                                         <th width="10%">Kode</th>
                                         <th width="25%">Nama Alternatif</th>
                                         <th width="25%">Jabatan</th>
@@ -71,17 +74,19 @@
                                         <?php foreach ($list as $row): ?>
                                             <tr>
                                                 <td class="text-center">
-                                                    <input type="checkbox" name="ids[]" value="<?= $row['id'] ?>" class="checkbox-item">
+                                                    <input type="checkbox" name="ids[]" value="<?= isset($row['id']) ? $row['id'] : '' ?>" class="checkbox-item">
                                                 </td>
-                                                <td><?= htmlspecialchars($row['kode']) ?></td>
-                                                <td class="fw-semibold"><?= htmlspecialchars($row['nama']) ?></td>
-                                                <td><?= htmlspecialchars($row['jabatan'] ?? '-') ?></td>
+                                                <td><?= isset($row['kode']) ? htmlspecialchars($row['kode']) : '' ?></td>
+                                                <td class="fw-semibold"><?= isset($row['nama']) ? htmlspecialchars($row['nama']) : '' ?></td>
+                                                <td><?= isset($row['jabatan']) ? htmlspecialchars($row['jabatan']) : '-' ?></td>
                                                 <td>
                                                     <?php
                                                     $periode_nama = '';
+                                                    $row_periode_id = isset($row['periode_id']) ? $row['periode_id'] : '';
                                                     foreach ($periode_list as $p) {
-                                                        if ($p['id'] == $row['periode_id']) {
-                                                            $periode_nama = $p['nama'];
+                                                        $p_id = isset($p['id']) ? $p['id'] : '';
+                                                        if ($p_id == $row_periode_id) {
+                                                            $periode_nama = isset($p['nama']) ? $p['nama'] : '';
                                                             break;
                                                         }
                                                     }
@@ -90,15 +95,15 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-2">
-                                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalAlternatifEdit"
-                                                            data-id="<?= $row['id'] ?>"
-                                                            data-kode="<?= htmlspecialchars($row['kode']) ?>"
-                                                            data-nama="<?= htmlspecialchars($row['nama']) ?>"
-                                                            data-jabatan="<?= htmlspecialchars($row['jabatan'] ?? '') ?>"
-                                                            data-periode_id="<?= $row['periode_id'] ?>">
+                                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalAlternatifEdit"
+                                                            data-id="<?= isset($row['id']) ? $row['id'] : '' ?>"
+                                                            data-kode="<?= isset($row['kode']) ? htmlspecialchars($row['kode']) : '' ?>"
+                                                            data-nama="<?= isset($row['nama']) ? htmlspecialchars($row['nama']) : '' ?>"
+                                                            data-jabatan="<?= isset($row['jabatan']) ? htmlspecialchars($row['jabatan']) : '' ?>"
+                                                            data-periode_id="<?= isset($row['periode_id']) ? $row['periode_id'] : '' ?>">
                                                             <i class="bi bi-pencil-square"></i> Edit
                                                         </button>
-                                                        <a href="<?= base_url('admin/alternatif_delete/' . $row['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">
+                                                        <a href="<?= base_url('admin/alternatif_delete/' . (isset($row['id']) ? $row['id'] : '')) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">
                                                             <i class="bi bi-trash"></i> Hapus
                                                         </a>
                                                     </div>
@@ -123,7 +128,6 @@
     </div>
 </div>
 
-<!-- Modal Tambah Alternatif -->
 <div class="modal fade" id="modalAlternatif" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -150,8 +154,8 @@
                         <select class="form-select" id="periode_id" name="periode_id" required>
                             <option value="">Pilih Periode</option>
                             <?php foreach ($periode_list as $p): ?>
-                                <option value="<?= $p['id'] ?>" <?= ($periode_selected == $p['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($p['nama']) ?>
+                                <option value="<?= isset($p['id']) ? $p['id'] : '' ?>" <?= ($periode_selected == (isset($p['id']) ? $p['id'] : '')) ? 'selected' : '' ?>>
+                                    <?= isset($p['nama']) ? htmlspecialchars($p['nama']) : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -166,7 +170,6 @@
     </div>
 </div>
 
-<!-- Modal Edit Alternatif -->
 <div class="modal fade" id="modalAlternatifEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -193,7 +196,7 @@
                         <select class="form-select" id="edit_periode_id" name="periode_id" required>
                             <option value="">Pilih Periode</option>
                             <?php foreach ($periode_list as $p): ?>
-                                <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nama']) ?></option>
+                                <option value="<?= isset($p['id']) ? $p['id'] : '' ?>"><?= isset($p['nama']) ? htmlspecialchars($p['nama']) : '' ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -208,41 +211,46 @@
 </div>
 
 <script>
-    // Modal edit: isi data dari tombol
     var modalEdit = document.getElementById('modalAlternatifEdit');
-    modalEdit.addEventListener('show.bs.modal', function(event) {
-        var button = event.relatedTarget;
-        var id = button.getAttribute('data-id');
-        var kode = button.getAttribute('data-kode');
-        var nama = button.getAttribute('data-nama');
-        var jabatan = button.getAttribute('data-jabatan');
-        var periode_id = button.getAttribute('data-periode_id');
+    if (modalEdit) {
+        modalEdit.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var id = button.getAttribute('data-id');
+            var kode = button.getAttribute('data-kode');
+            var nama = button.getAttribute('data-nama');
+            var jabatan = button.getAttribute('data-jabatan');
+            var periode_id = button.getAttribute('data-periode_id');
 
-        var form = modalEdit.querySelector('#formEditAlternatif');
-        form.action = '<?= base_url('admin/alternatif_update') ?>/' + id;
-        form.querySelector('#edit_kode').value = kode;
-        form.querySelector('#edit_nama').value = nama;
-        form.querySelector('#edit_jabatan').value = jabatan;
-        form.querySelector('#edit_periode_id').value = periode_id;
-    });
+            var form = modalEdit.querySelector('#formEditAlternatif');
+            form.action = '<?= base_url('admin/alternatif_update') ?>/' + id;
+            form.querySelector('#edit_kode').value = kode;
+            form.querySelector('#edit_nama').value = nama;
+            form.querySelector('#edit_jabatan').value = jabatan;
+            form.querySelector('#edit_periode_id').value = periode_id;
+        });
+    }
 
-    // Select all checkbox
-    document.getElementById('select_all').addEventListener('change', function(e) {
-        var checkboxes = document.querySelectorAll('.checkbox-item');
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = e.target.checked;
-        }
-    });
+    var selectAll = document.getElementById('select_all');
+    if (selectAll) {
+        selectAll.addEventListener('change', function(e) {
+            var checkboxes = document.querySelectorAll('.checkbox-item');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = e.target.checked;
+            }
+        });
+    }
 
-    // Hapus massal
-    document.getElementById('btnHapusMassal').addEventListener('click', function() {
-        var checked = document.querySelectorAll('.checkbox-item:checked');
-        if (checked.length === 0) {
-            alert('Pilih minimal satu data untuk dihapus.');
-            return;
-        }
-        if (confirm('Yakin ingin menghapus ' + checked.length + ' data alternatif? Tindakan ini tidak dapat dibatalkan.')) {
-            document.getElementById('formHapusMassal').submit();
-        }
-    });
+    var btnHapusMassal = document.getElementById('btnHapusMassal');
+    if (btnHapusMassal) {
+        btnHapusMassal.addEventListener('click', function() {
+            var checked = document.querySelectorAll('.checkbox-item:checked');
+            if (checked.length === 0) {
+                alert('Pilih minimal satu data untuk dihapus.');
+                return;
+            }
+            if (confirm('Yakin ingin menghapus ' + checked.length + ' data alternatif? Tindakan ini tidak dapat dibatalkan.')) {
+                document.getElementById('formHapusMassal').submit();
+            }
+        });
+    }
 </script>

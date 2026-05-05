@@ -157,7 +157,7 @@ class Admin extends CI_Controller
         redirect('admin/kriteria');
     }
 
-    public function kriteria_update($id)
+    public function kriteria_update(int $id)
     {
         $this->form_validation->set_rules('kode', 'Kode', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama Kriteria', 'required|trim');
@@ -196,7 +196,7 @@ class Admin extends CI_Controller
         redirect('admin/kriteria');
     }
 
-    public function kriteria_delete($id)
+    public function kriteria_delete(imt $id)
     {
         $this->Kriteria_model->delete($id);
         $this->session->set_flashdata('success', 'Kriteria berhasil dihapus.');
@@ -252,7 +252,7 @@ class Admin extends CI_Controller
         redirect('admin/alternatif');
     }
 
-    public function alternatif_update($id)
+    public function alternatif_update(int $id)
     {
         $this->form_validation->set_rules('kode', 'Kode', 'required|trim');
         $this->form_validation->set_rules('nama', 'Nama Alternatif', 'required|trim');
@@ -282,7 +282,7 @@ class Admin extends CI_Controller
         redirect('admin/alternatif');
     }
 
-    public function alternatif_delete($id)
+    public function alternatif_delete(int $id)
     {
         $this->Alternatif_model->delete($id);
         $this->session->set_flashdata('success', 'Alternatif berhasil dihapus.');

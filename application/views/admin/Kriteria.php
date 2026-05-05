@@ -1,3 +1,8 @@
+<?php
+// Inisialisasi Variabel
+$list = isset($list) ? $list : array();
+?>
+
 <div class="page-heading">
     <div class="page-title mb-4">
         <div class="row">
@@ -34,7 +39,7 @@
                     <?php
                     $total_bobot = 0;
                     foreach ($list as $k) {
-                        $total_bobot += (float)$k['bobot'] * 100; 
+                        $total_bobot += (float)$k['bobot'] * 100;
                     }
                     if (abs($total_bobot - 100) > 0.01) {
                         echo '<div class="alert alert-warning">⚠️ Total bobot saat ini: ' . number_format($total_bobot, 2) . '. Idealnya total bobot = 100.</div>';
@@ -124,14 +129,13 @@
                     <div class="mb-3">
                         <label for="tipe" class="form-label">Tipe</label>
                         <select class="form-select" id="tipe" name="tipe" required>
-                            <option value="benefit">Benefit (semakin besar semakin baik)</option>
-                            <option value="cost">Cost (semakin kecil semakin baik)</option>
+                            <option value="benefit">Benefit</option>
+                            <option value="cost">Cost</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="bobot" class="form-label">Bobot (0 - 100)</label>
+                        <label for="bobot" class="form-label">Bobot</label>
                         <input type="number" step="1" class="form-control" id="bobot" name="bobot" min="0" max="100" required>
-                        <small class="text-muted">Contoh: 30 (berarti 30%)</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -169,7 +173,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_bobot" class="form-label">Bobot (0 - 100)</label>
+                        <label for="edit_bobot" class="form-label">Bobot</label>
                         <input type="number" step="1" class="form-control" id="edit_bobot" name="bobot" min="0" max="100" required>
                     </div>
                 </div>
