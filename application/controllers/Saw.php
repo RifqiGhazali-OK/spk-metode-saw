@@ -12,7 +12,7 @@ class Saw extends CI_Controller
         $this->load->model('Hasil_model');
         $this->load->model('User_model');
         $this->load->model('Periode_model');
-        $this->load->model('Nilai_model');  // <-- load model nilai
+        $this->load->model('Nilai_model'); 
 
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') != 'admin') {
             redirect('auth');
@@ -280,5 +280,95 @@ class Saw extends CI_Controller
 
         $data['content'] = $this->load->view('saw/hasil', $data, TRUE);
         $this->load->view('layout/template', $data);
+    }
+
+    // ===================================
+    // EXPORT EXCEL PERHITUNGAN DETAIL 
+    // ===================================
+    public function export_excel()
+    {
+        $user_id = $this->session->userdata('id');
+        $periode_id = $this->input->get('periode_id') ?: $this->_get_active_periode();
+
+        // 1. Ambil Data Dasar
+        $periode = $this->db->get_where('periode', ['id' => $periode_id])->row();
+        $kriteria = $this->Kriteria_model->get_all();
+        $alternatif = $this->Alternatif_model->get_all_by_periode($periode_id);
+        $penilaian = $this->Nilai_model->get_by_user_and_periode($user_id, $periode_id);
+
+        if (empty($kriteria) || empty($alternatif)) {
+            $this->session->set_flashdata('error', 'Data tidak lengkap untuk diexport.');
+            redirect('saw/hasil?periode_id=' . $periode_id);
+        }
+
+        // Inisialisasi Array
+        $matrix = [];
+        $normalized = [];
+        $weighted = [];
+        $final = [];
+
+        // 2. Mapping Nilai Mentah ke Matriks 
+        foreach ($penilaian as $p) {
+            $matrix[$p['alternatif_id']][$p['kriteria_id']] = $p['nilai'];
+        }
+
+        // 3. Proses Normalisasi (R), Terbobot (V), dan Nilai Akhir
+        foreach ($kriteria as $krit) {
+            $k_id = $krit['id'];
+            $tipe = $krit['tipe'];
+            $nilai_kolom = array_column($matrix, $k_id);
+
+            // Cari nilai Max / Min untuk kriteria ini
+            $max = !empty($nilai_kolom) ? max($nilai_kolom) : 1;
+            $min = !empty($nilai_kolom) ? min($nilai_kolom) : 1;
+
+            foreach ($alternatif as $alt) {
+                $a_id = $alt['id'];
+                $val = $matrix[$a_id][$k_id] ?? 0; // Jika belum dinilai, set 0
+
+                // Hitung Normalisasi
+                $norm = ($tipe == 'benefit') ? ($val / ($max ?: 1)) : (($min ?: 1) / ($val ?: 1));
+                $normalized[$a_id][$k_id] = $norm;
+
+                // Hitung Terbobot
+                $bobot_nilai = $norm * $krit['bobot'];
+                $weighted[$a_id][$k_id] = $bobot_nilai;
+
+                // Akumulasi langsung ke Nilai Akhir
+                if (!isset($final[$a_id])) $final[$a_id] = 0;
+                $final[$a_id] += $bobot_nilai;
+            }
+        }
+
+        // Urutkan nilai akhir dari terbesar ke terkecil (Ranking)
+        arsort($final);
+
+        // 4. Siapkan Data untuk View Excel
+        $data = [
+            'nama_periode' => $periode ? $periode->nama : 'Semua Periode',
+            'kriteria'     => $kriteria,
+            'alternatif'   => $alternatif,
+            'matrix'       => $matrix,
+            'normalized'   => $normalized,
+            'weighted'     => $weighted,
+            'final'        => $final
+        ];
+
+        // 5. Eksekusi Render ke Excel
+        $filename = "Laporan SAW " . $data['nama_periode'] . ".xls";
+        $html = $this->load->view('saw/export_excel', $data, TRUE);
+        
+        // Bersihkan output buffer jika ada spasi yang bocor
+        if (ob_get_length()) ob_end_clean();
+
+        //browser mendownload sebagai file Excel
+        header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Pragma: public");
+
+        echo $html;
+        exit();
     }
 }

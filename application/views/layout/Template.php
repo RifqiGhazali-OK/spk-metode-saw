@@ -1,8 +1,7 @@
 <?php
-$role = 'admin'; // single user, role tetap admin
+$role = 'admin'; 
 $active_menu = $active_menu ?? '';
 
-// Ambil nama dari session
 $nama_user = $nama_user ?? $this->session->userdata('nama');
 if (empty($nama_user)) {
     $nama_user = $this->session->userdata('username') ?? $this->session->userdata('email');
@@ -127,7 +126,7 @@ $title = $title ?? 'SPK SAW';
                         <li class="sidebar-item <?= ($active_menu == 'hitung') ? 'active' : '' ?>">
                             <a href="<?= base_url('saw/proses_saw') ?>" class="sidebar-link">
                                 <i class="bi bi-calculator-fill"></i>
-                                <span>Proses Hitung SAW</span>
+                                <span>Proses Perhitungan</span>
                             </a>
                         </li>
                         <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
@@ -193,7 +192,7 @@ $title = $title ?? 'SPK SAW';
             <div id="main-content">
                 <?= $content ?>
             </div>
-            
+
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">

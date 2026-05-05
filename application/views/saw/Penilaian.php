@@ -10,7 +10,7 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Input Penilaian</h3>
-        <p class="text-subtitle text-muted">Isi nilai setiap karyawan untuk setiap kriteria (skala 0-100). Nilai akan tersimpan otomatis.</p>
+        <p class="text-subtitle text-muted">Isi nilai setiap karyawan untuk setiap kriteria (skala 0-100). Setelah semua di isi, klik proses perhitungan.</p>
     </div>
 
     <div class="row">
@@ -22,18 +22,19 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                         <label class="form-label me-2">Periode:</label>
                         <select id="periode_id" class="form-select d-inline-block w-auto">
                             <?php foreach ($periode_list as $p): ?>
-                                <option value="<?= $p['id'] ?>" <?= ($p['id'] == $periode_id_selected) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($p['nama']) ?>
+                                <?php $p_id = isset($p['id']) ? $p['id'] : ''; ?>
+                                <option value="<?= $p_id ?>" <?= ($p_id == $periode_id_selected) ? 'selected' : '' ?>>
+                                    <?= isset($p['nama']) ? htmlspecialchars($p['nama']) : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($this->session->flashdata('success')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('success')): ?>
                         <div class="alert alert-success"><?= $this->session->flashdata('success') ?></div>
                     <?php endif; ?>
-                    <?php if ($this->session->flashdata('error')): ?>
+                    <?php if (isset($this->session) && $this->session->flashdata('error')): ?>
                         <div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div>
                     <?php endif; ?>
 
@@ -47,9 +48,9 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                                 <tr>
                                     <?php foreach ($kriteria as $k): ?>
                                         <th class="text-center" style="min-width: 110px;">
-                                            <strong><?= htmlspecialchars($k['kode']) ?></strong><br>
-                                            <small class="text-muted"><?= htmlspecialchars($k['nama']) ?></small><br>
-                                            <small class="fw-bold">Bobot: <?= number_format($k['bobot'] * 100, 2) ?>%</small>
+                                            <strong><?= isset($k['kode']) ? htmlspecialchars($k['kode']) : '' ?></strong><br>
+                                            <small class="text-muted"><?= isset($k['nama']) ? htmlspecialchars($k['nama']) : '' ?></small><br>
+                                            <small class="fw-bold">Bobot: <?= number_format((isset($k['bobot']) ? $k['bobot'] : 0) * 100, 0) ?>%</small>
                                         </th>
                                     <?php endforeach; ?>
                                 </tr>
@@ -57,21 +58,23 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                             <tbody>
                                 <?php if (!empty($alternatif)): ?>
                                     <?php foreach ($alternatif as $alt): ?>
+                                        <?php $alt_id = isset($alt['id']) ? $alt['id'] : ''; ?>
                                         <tr>
                                             <td class="fw-semibold">
-                                                <?= htmlspecialchars($alt['kode']) ?> - <?= htmlspecialchars($alt['nama']) ?>
+                                                <?= isset($alt['kode']) ? htmlspecialchars($alt['kode']) : '' ?> - <?= isset($alt['nama']) ? htmlspecialchars($alt['nama']) : '' ?>
                                                 <?php if (!empty($alt['jabatan'])): ?>
                                                     <br><small class="text-muted"><?= htmlspecialchars($alt['jabatan']) ?></small>
                                                 <?php endif; ?>
                                             </td>
                                             <?php foreach ($kriteria as $k): ?>
                                                 <?php
-                                                $nilai = isset($nilai_map[$alt['id']][$k['id']]) ? $nilai_map[$alt['id']][$k['id']] : '';
+                                                $k_id = isset($k['id']) ? $k['id'] : '';
+                                                $nilai = isset($nilai_map[$alt_id][$k_id]) ? $nilai_map[$alt_id][$k_id] : '';
                                                 $nilai_formatted = (is_numeric($nilai)) ? number_format($nilai, 2, '.', '') : '';
                                                 ?>
                                                 <td class="text-center">
                                                     <input type="number" step="0.01" class="form-control form-control-sm text-center nilai-input"
-                                                        data-alternatif="<?= $alt['id'] ?>" data-kriteria="<?= $k['id'] ?>"
+                                                        data-alternatif="<?= $alt_id ?>" data-kriteria="<?= $k_id ?>"
                                                         value="<?= $nilai_formatted ?>" placeholder="0-100" style="width: 90px; margin: 0 auto;">
                                                 </td>
                                             <?php endforeach; ?>
@@ -91,7 +94,7 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                 </div>
                 <div class="card-footer bg-transparent text-end">
                     <button id="btnProsesSAW" class="btn btn-primary">
-                        <i class="bi bi-calculator-fill me-1"></i> Proses Hitung SAW
+                        <i class="bi bi-calculator-fill me-1"></i> Proses Perhitungan
                     </button>
                 </div>
             </div>
