@@ -13,10 +13,12 @@ class Admin extends CI_Controller
         $this->load->model('User_model');
         $this->load->model('Periode_model');
 
+        // Proteksi Halaman Admin
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') != 'admin') {
             redirect('auth');
         }
 
+        // Set nama session jika kosong
         if (empty($this->session->userdata('nama'))) {
             $user = $this->User_model->get_by_id($this->session->userdata('id'));
             if ($user) {
@@ -85,28 +87,106 @@ class Admin extends CI_Controller
         redirect('admin/profil');
     }
 
-    // ============================================
-    // DASHBOARD
-    // ============================================
-    public function dashboard()
-    {
-        $data = [
-            'title'            => 'Dashboard Admin',
-            'active_menu'      => 'dashboard',
-            'total_kriteria'   => $this->Kriteria_model->count_all(),
-            'total_alternatif' => $this->Alternatif_model->count_all_admin(),
-            'total_user'       => $this->User_model->count_all(),
-            'total_hasil'      => $this->Hasil_model->count_all(),
-            'top_nilai'        => $this->Hasil_model->get_top_nilai(),
-            'hasil_ranking'    => $this->Hasil_model->get_ranking(10),
-            'role'             => $this->session->userdata('role'),
-            'nama_user'        => $this->_get_nama_user()
-        ];
+// ===========
+// DASHBOARD 
+// ===========
+public function dashboard()
+{
+    // 1. Ambil SEMUA data hasil perhitungan
+    $semua_hasil = $this->Hasil_model->get_ranking();
 
-        $data['content'] = $this->load->view('admin/dashboard', $data, TRUE);
-        $this->load->view('layout/template', $data);
+    // 2. Data Tabel Top 10 Keseluruhan
+    $hasil_ranking = $this->Hasil_model->get_ranking(10);
+
+    // ==========================================================
+    // DATA UNTUK BAR CHART (RANKING TOP 10)
+    // ==========================================================
+    $bar_labels = [];
+    $bar_values = [];
+    $bar_dept   = [];
+    $bar_status = []; 
+
+    if (!empty($hasil_ranking)) {
+        foreach ($hasil_ranking as $row) {
+            $bar_labels[] = $row['nama_alternatif'] ?? $row['nama'] ?? '-';
+            $nilai        = (float)($row['nilai_akhir'] ?? 0);
+            $bar_values[] = $nilai;
+            $bar_dept[]   = $row['jabatan'] ?? '-';
+            $bar_status[] = ($nilai >= 0.70) ? 'Layak' : 'pertimbangkan';
+        }
     }
 
+    // ==========================================================
+    // DATA UNTUK DONUT CHART (STATUS PER DEPARTEMEN)
+    // ==========================================================
+    $dept_stats = [];
+    $total_layak_all        = 0;
+    $total_tidak_layak_all  = 0;
+
+    if (!empty($semua_hasil)) {
+        foreach ($semua_hasil as $row) {
+            $jabatan  = !empty($row['jabatan']) ? trim($row['jabatan']) : 'Lainnya';
+            $is_layak = ((float)$row['nilai_akhir'] >= 0.70);
+
+            if (!isset($dept_stats[$jabatan])) {
+                $dept_stats[$jabatan] = ['total' => 0, 'layak' => 0, 'pertimbangkan' => 0];
+            }
+
+            $dept_stats[$jabatan]['total']++;
+            if ($is_layak) {
+                $dept_stats[$jabatan]['layak']++;
+                $total_layak_all++;
+            } else {
+                $dept_stats[$jabatan]['pertimbangkan']++;
+                $total_tidak_layak_all++;
+            }
+        }
+    }
+
+    $chart_labels         = [];
+    $chart_data           = [];
+    $chart_layak          = [];
+    $chart_pertimbangkan  = [];
+
+    foreach ($dept_stats as $dept => $stats) {
+        $chart_labels[]        = $dept;
+        $chart_data[]          = $stats['total'];
+        $chart_layak[]         = $stats['layak'];
+        $chart_pertimbangkan[] = $stats['pertimbangkan'];
+    }
+
+    // Total semua karyawan yang sudah dinilai (untuk label tengah donut)
+    $total_dinilai = count($semua_hasil);
+
+    $data = [
+        'title'               => 'Dashboard Admin',
+        'active_menu'         => 'dashboard',
+        'total_kriteria'      => $this->Kriteria_model->count_all(),
+        'total_alternatif'    => $this->Alternatif_model->count_all_admin(),
+        'total_hasil'         => $this->Hasil_model->count_all(),
+        'hasil_ranking'       => $hasil_ranking,
+
+        // Donut Chart
+        'chart_labels'        => json_encode($chart_labels),
+        'chart_data'          => json_encode($chart_data),
+        'chart_layak'         => json_encode($chart_layak),
+        'chart_pertimbangkan' => json_encode($chart_pertimbangkan),
+        'total_dinilai'       => $total_dinilai, 
+
+        // Bar Chart
+        'bar_labels'          => json_encode($bar_labels),
+        'bar_values'          => json_encode($bar_values),
+        'bar_dept'            => json_encode($bar_dept),
+        'bar_status'          => json_encode($bar_status), 
+
+        'role'                => $this->session->userdata('role'),
+        'nama_user'           => $this->_get_nama_user()
+    ];
+
+    $data['content'] = $this->load->view('admin/dashboard', $data, TRUE);
+    $this->load->view('layout/template', $data);
+}
+    
     // ============================================
     // KRITERIA
     // ============================================
@@ -175,6 +255,7 @@ class Admin extends CI_Controller
             $this->session->set_flashdata('error', 'Data kriteria tidak ditemukan.');
             redirect('admin/kriteria');
         }
+
         $bobot_lama = $old->bobot * 100;
         $total_existing = ($this->Kriteria_model->sum_bobot() * 100) - $bobot_lama;
 
@@ -196,7 +277,7 @@ class Admin extends CI_Controller
         redirect('admin/kriteria');
     }
 
-    public function kriteria_delete(imt $id)
+    public function kriteria_delete(int $id)
     {
         $this->Kriteria_model->delete($id);
         $this->session->set_flashdata('success', 'Kriteria berhasil dihapus.');
@@ -243,11 +324,12 @@ class Admin extends CI_Controller
 
         $this->Alternatif_model->insert([
             'periode_id' => $periode_id,
-            'user_id'    => 1,
+            'user_id'    => 1, // Jika ingin dinamis gunakan: $this->session->userdata('id')
             'kode'       => $kode,
             'nama'       => $this->input->post('nama'),
             'jabatan'    => $this->input->post('jabatan')
         ]);
+
         $this->session->set_flashdata('success', 'Alternatif berhasil ditambahkan.');
         redirect('admin/alternatif');
     }
@@ -278,6 +360,7 @@ class Admin extends CI_Controller
             'nama'       => $this->input->post('nama'),
             'jabatan'    => $this->input->post('jabatan')
         ]);
+
         $this->session->set_flashdata('success', 'Alternatif berhasil diperbarui.');
         redirect('admin/alternatif');
     }

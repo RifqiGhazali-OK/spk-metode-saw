@@ -234,7 +234,7 @@ class Saw extends CI_Controller
         $ranking = 1;
         $data_hasil = [];
         foreach ($final as $alt_id => $nilai_akhir) {
-            $status = ($nilai_akhir >= 0.75) ? 'Layak' : 'Pertimbangkan';
+            $status = ($nilai_akhir >= 0.70) ? 'Layak' : 'Pertimbangkan';
             $data_hasil[] = [
                 'user_id'       => $user_id,
                 'periode_id'    => $periode_id,
