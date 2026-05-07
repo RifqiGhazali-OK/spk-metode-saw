@@ -9,18 +9,18 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
 
 <div class="page-heading">
     <div class="page-title mb-4">
-        <h3>Input Penilaian</h3>
-        <p class="text-subtitle text-muted">Isi nilai setiap karyawan untuk setiap kriteria (skala 0-100). Setelah semua di isi, klik proses perhitungan.</p>
+        <h3>Input Penilaian Alternatif</h3>
+        <p class="text-subtitle text-muted">Isi matriks nilai (Skala: <strong>0.1 - 100</strong>). Nilai otomatis tersimpan saat Anda berpindah kolom.</p>
     </div>
 
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
-                    <h4 class="card-title mb-0">Matriks Penilaian</h4>
-                    <div>
-                        <label class="form-label me-2">Periode:</label>
-                        <select id="periode_id" class="form-select d-inline-block w-auto">
+                    <h5 class="card-title mb-0">Matriks Penilaian</h5>
+                    <div class="d-flex align-items-center">
+                        <label class="form-label me-2 mb-0 fw-semibold text-muted">Periode:</label>
+                        <select id="periode_id" class="form-select form-select-sm shadow-none" style="width: 160px; cursor: pointer;">
                             <?php foreach ($periode_list as $p): ?>
                                 <?php $p_id = isset($p['id']) ? $p['id'] : ''; ?>
                                 <option value="<?= $p_id ?>" <?= ($p_id == $periode_id_selected) ? 'selected' : '' ?>>
@@ -30,27 +30,34 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                         </select>
                     </div>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body pt-4">
                     <?php if (isset($this->session) && $this->session->flashdata('success')): ?>
-                        <div class="alert alert-success"><?= $this->session->flashdata('success') ?></div>
+                        <div class="alert alert-success alert-dismissible fade show border-0">
+                            <?= $this->session->flashdata('success') ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
                     <?php endif; ?>
                     <?php if (isset($this->session) && $this->session->flashdata('error')): ?>
-                        <div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div>
+                        <div class="alert alert-danger alert-dismissible fade show border-0">
+                            <?= $this->session->flashdata('error') ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
                     <?php endif; ?>
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover align-middle">
-                            <thead class="table-light">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light text-center">
                                 <tr>
-                                    <th rowspan="2" class="text-center" style="width: 180px; vertical-align: middle;">Alternatif</th>
-                                    <th colspan="<?= count($kriteria) ?>" class="text-center">Kriteria</th>
+                                    <th rowspan="2" class="align-middle text-start ps-3" style="min-width: 180px; width: 220px;">Alternatif</th>
+                                    <th colspan="<?= count($kriteria) ?>" class="text-center py-2">Kriteria Penilaian (Min: 0.1)</th>
                                 </tr>
                                 <tr>
                                     <?php foreach ($kriteria as $k): ?>
-                                        <th class="text-center" style="min-width: 110px;">
-                                            <strong><?= isset($k['kode']) ? htmlspecialchars($k['kode']) : '' ?></strong><br>
-                                            <small class="text-muted"><?= isset($k['nama']) ? htmlspecialchars($k['nama']) : '' ?></small><br>
-                                            <small class="fw-bold">Bobot: <?= number_format((isset($k['bobot']) ? $k['bobot'] : 0) * 100, 0) ?>%</small>
+                                        <th style="min-width: 120px;">
+                                            <span class="fw-bold text-dark"><?= isset($k['kode']) ? htmlspecialchars($k['kode']) : '' ?></span><br>
+                                            <span class="fw-normal text-muted" style="font-size: 0.85rem;"><?= isset($k['nama']) ? htmlspecialchars($k['nama']) : '' ?></span><br>
+                                            <small class="fw-semibold text-secondary" style="font-size: 0.8rem;">Bobot: <?= number_format((isset($k['bobot']) ? $k['bobot'] : 0) * 100, 0) ?>%</small>
                                         </th>
                                     <?php endforeach; ?>
                                 </tr>
@@ -60,12 +67,13 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                                     <?php foreach ($alternatif as $alt): ?>
                                         <?php $alt_id = isset($alt['id']) ? $alt['id'] : ''; ?>
                                         <tr>
-                                            <td class="fw-semibold">
-                                                <?= isset($alt['kode']) ? htmlspecialchars($alt['kode']) : '' ?> - <?= isset($alt['nama']) ? htmlspecialchars($alt['nama']) : '' ?>
+                                            <td class="text-start ps-3">
+                                                <div class="fw-bold text-dark"><?= isset($alt['kode']) ? htmlspecialchars($alt['kode']) : '' ?> - <?= isset($alt['nama']) ? htmlspecialchars($alt['nama']) : '' ?></div>
                                                 <?php if (!empty($alt['jabatan'])): ?>
-                                                    <br><small class="text-muted"><?= htmlspecialchars($alt['jabatan']) ?></small>
+                                                    <div class="text-muted" style="font-size: 0.8rem;"><?= htmlspecialchars($alt['jabatan']) ?></div>
                                                 <?php endif; ?>
                                             </td>
+
                                             <?php foreach ($kriteria as $k): ?>
                                                 <?php
                                                 $k_id = isset($k['id']) ? $k['id'] : '';
@@ -73,18 +81,19 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                                                 $nilai_formatted = (is_numeric($nilai)) ? number_format($nilai, 2, '.', '') : '';
                                                 ?>
                                                 <td class="text-center">
-                                                    <input type="number" step="0.01" class="form-control form-control-sm text-center nilai-input"
+                                                    <input type="number" step="0.01" min="0.1" max="100"
+                                                        class="form-control text-center mx-auto shadow-none nilai-input"
                                                         data-alternatif="<?= $alt_id ?>" data-kriteria="<?= $k_id ?>"
-                                                        value="<?= $nilai_formatted ?>" placeholder="0-100" style="width: 90px; margin: 0 auto;">
+                                                        value="<?= $nilai_formatted ?>" placeholder="0.1"
+                                                        style="width: 90px; border-radius: 6px;">
                                                 </td>
                                             <?php endforeach; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="<?= count($kriteria) + 1 ?>" class="text-center text-muted py-4">
-                                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                            Belum ada data alternatif. Silakan tambah data alternatif terlebih dahulu.
+                                        <td colspan="<?= count($kriteria) + 1 ?>" class="text-center text-muted py-5">
+                                            Belum ada data alternatif untuk periode ini.
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -92,9 +101,9 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                         </table>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent text-end">
-                    <button id="btnProsesSAW" class="btn btn-primary">
-                        <i class="bi bi-calculator-fill me-1"></i> Proses Perhitungan
+                <div class="card-footer bg-transparent border-top py-3 text-end">
+                    <button id="btnProsesSAW" class="btn btn-primary px-4">
+                        <i class="bi bi-calculator me-1"></i> Proses hitung SAW
                     </button>
                 </div>
             </div>
@@ -105,22 +114,31 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Ganti periode
+        // Dropdown Ganti Periode
         $('#periode_id').on('change', function() {
             window.location.href = '<?= base_url("saw/penilaian") ?>?periode_id=' + $(this).val();
         });
 
-        // Auto-save
+        // Fitur Auto-save & Validasi Minimal 0.1
         $('.nilai-input').on('change', function() {
             var input = $(this);
             var val = input.val();
-            if (val !== '' && (val < 0 || val > 100)) {
-                alert('Nilai harus antara 0-100');
-                input.val('');
-                return;
+
+            // Validasi: Jika diisi, tidak boleh kurang dari 0.1 atau lebih dari 100
+            if (val !== '') {
+                var floatVal = parseFloat(val);
+                if (floatVal < 0.1 || floatVal > 100) {
+                    alert("⚠️ NILAI TIDAK VALID!\n\nSyarat pengisian:\n- Nilai minimal adalah 0.1 (Rumus SAW tidak mendukung angka 0).\n- Nilai maksimal adalah 100.\n\nSilakan isi kembali dengan benar.");
+                    input.val('');
+                    input.css('border-color', '#dc3545');
+                    setTimeout(() => input.css('border-color', ''), 2000);
+                    return;
+                }
             }
+
             var periode_id = $('#periode_id').val();
             var sendVal = val === '' ? 0 : parseFloat(val);
+
             $.ajax({
                 url: '<?= base_url("saw/penilaian_save") ?>',
                 type: 'POST',
@@ -131,19 +149,38 @@ $nilai_map = isset($nilai_map) ? $nilai_map : array();
                     periode_id: periode_id
                 },
                 success: function() {
-                    input.css('border-color', '#28a745');
+                    // Feedback Hijau tanda berhasil simpan
+                    input.css('border-color', '#198754');
                     setTimeout(() => input.css('border-color', ''), 500);
                 },
                 error: function() {
-                    alert('Gagal menyimpan');
+                    alert('Gagal menyimpan nilai. Cek koneksi Anda.');
                 }
             });
         });
 
-        // Tombol proses
+        // Validasi tombol Proses SAW
         $('#btnProsesSAW').click(function() {
             var periode_id = $('#periode_id').val();
-            if (confirm('Proses perhitungan SAW? Pastikan semua nilai sudah diisi.')) {
+            var isLengkap = true;
+
+            // Pengecekan apakah ada input yang kosong atau di bawah 0.1
+            $('.nilai-input').each(function() {
+                var v = $(this).val();
+                if (v === '' || parseFloat(v) < 0.1) {
+                    isLengkap = false;
+                    $(this).css('border-color', '#dc3545');
+                } else {
+                    $(this).css('border-color', '');
+                }
+            });
+
+            if (!isLengkap) {
+                alert("⚠️ PERINGATAN!\n\nAda nilai yang KOSONG atau bernilai 0.\nHarap lengkapi semua data dengan nilai minimal 0.1 sebelum memproses perhitungan.");
+                return false;
+            }
+
+            if (confirm('Lanjutkan proses perhitungan SAW?')) {
                 window.location.href = '<?= base_url("saw/proses_saw") ?>?periode_id=' + periode_id;
             }
         });

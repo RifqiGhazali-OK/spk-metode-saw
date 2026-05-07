@@ -25,7 +25,7 @@ $hasil = isset($hasil) ? $hasil : array();
         </div>
 
         <div class="col-md-8 text-end">
-            <a href="<?= base_url('saw/Export_excel?periode_id=' . $periode_id_selected) ?>" class="btn btn-success">
+            <a href="<?= base_url('export_excel?periode_id=' . $periode_id_selected) ?>" class="btn btn-success">
                 <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
             </a>
         </div>
@@ -46,7 +46,7 @@ $hasil = isset($hasil) ? $hasil : array();
                                     <th class="text-start ps-4" style="width: 11%;">Rank</th>
                                     <th class="text-start ps-4" style="width: 12%;">Kode</th>
                                     <th class="text-start ps-4" style="width: 22%;">Nama Alternatif</th>
-                                    <th class="text-start ps-4"style="width: 20%;">Jabatan</th>
+                                    <th class="text-start ps-4" style="width: 20%;">Jabatan</th>
                                     <th class="text-start ps-4" style="width: 20%;">Nilai Akhir</th>
                                     <th class="text-start ps-4" style="width: 20%;">Status</th>
                                 </tr>
@@ -75,9 +75,9 @@ $hasil = isset($hasil) ? $hasil : array();
                                             <td class="text-start text-muted ps-4 small"><?= htmlspecialchars($row['jabatan'] ?? '-') ?></td>
 
                                             <td class="text-start ps-4">
-                                                <div class="d-flex align-items-center gap-2" style="max-width: 160px;">
-                                                    <span class="fw-bold text-primary" style="width: 45px; flex-shrink: 0;">
-                                                        <?= number_format($row['nilai_akhir'], 3) ?>
+                                                <div class="d-flex align-items-center gap-2" style="max-width: 180px;">
+                                                    <span class="fw-bold text-primary text-nowrap" style="width: 60px; flex-shrink: 0;">
+                                                        <?= number_format($row['nilai_akhir'], 4) ?>
                                                     </span>
                                                     <div class="progress flex-grow-1" style="height: 5px; background-color: #eee;">
                                                         <div class="progress-bar bg-primary" style="width: <?= $row['nilai_akhir'] * 100 ?>%"></div>

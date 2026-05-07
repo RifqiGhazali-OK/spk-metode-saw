@@ -36,25 +36,25 @@ $periode_id = isset($periode_id) ? $periode_id : '';
                         <tbody>
                             <?php foreach ($kriteria as $krit): ?>
                                 <?php
-                                $krit_id = isset($krit['id']) ? $krit['id'] : '';
-                                $val_matrix = isset($matrix[$alt_id][$krit_id]) ? $matrix[$alt_id][$krit_id] : 0;
-                                $val_norm = isset($normalized[$alt_id][$krit_id]) ? $normalized[$alt_id][$krit_id] : 0;
-                                $val_weight = isset($weighted[$alt_id][$krit_id]) ? $weighted[$alt_id][$krit_id] : 0;
-                                $bobot = isset($krit['bobot']) ? $krit['bobot'] : 0;
+                                $krit_id    = $krit['id'] ?? '';
+                                $val_matrix = $matrix[$alt_id][$krit_id] ?? 0;
+                                $val_norm   = $normalized[$alt_id][$krit_id] ?? 0;
+                                $val_weight = $weighted[$alt_id][$krit_id] ?? 0;
+                                $bobot      = $krit['bobot'] ?? 0;
                                 ?>
                                 <tr>
                                     <td class="text-start"><?= isset($krit['kode']) ? htmlspecialchars($krit['kode']) : '' ?> - <?= isset($krit['nama']) ? htmlspecialchars($krit['nama']) : '' ?></td>
                                     <td class="text-start"><?= number_format($val_matrix, 2) ?></td>
-                                    <td class="text-start"><?= number_format($val_norm, 3) ?></td>
-                                    <td class="text-start"><?= number_format($bobot, 2) ?> (<?= $bobot * 100 ?>%)</td>
-                                    <td class="text-start fw-semibold"><?= number_format($val_weight, 3) ?></td>
+                                    <td class="text-start"><?= number_format($val_norm, 4) ?></td>
+                                    <td class="text-start"><?= number_format($bobot, 2) ?> (<?= number_format($bobot * 100, 0) ?>%)</td>
+                                    <td class="text-start fw-semibold"><?= number_format($val_weight, 4) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot class="table-secondary">
                             <tr>
                                 <th colspan="4" class="text-end pe-3">Total Nilai Akhir (Vi)</th>
-                                <th class="text-start fs-5"><?= number_format(isset($final[$alt_id]) ? $final[$alt_id] : 0, 3) ?></th>
+                                <th class="text-start fs-5"><?= number_format(isset($final[$alt_id]) ? $final[$alt_id] : 0, 4) ?></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -77,4 +77,4 @@ $periode_id = isset($periode_id) ? $periode_id : '';
             </a>
         </div>
     </div>
-</div>
+</div
