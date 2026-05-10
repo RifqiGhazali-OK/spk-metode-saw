@@ -116,19 +116,14 @@ $title = $title ?? 'SPK SAW';
                             </a>
                         </li>
 
-                        <li class="sidebar-title">Penilaian SAW</li>
+                        <li class="sidebar-title">SAW</li>
                         <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
                             <a href="<?= base_url('saw/penilaian') ?>" class="sidebar-link">
                                 <i class="bi bi-pencil-square"></i>
-                                <span>Input Penilaian</span>
+                                <span>Proses Hitung SAW</span>
                             </a>
                         </li>
-                        <li class="sidebar-item <?= ($active_menu == 'hitung') ? 'active' : '' ?>">
-                            <a href="<?= base_url('saw/proses_saw') ?>" class="sidebar-link">
-                                <i class="bi bi-calculator-fill"></i>
-                                <span>Proses Perhitungan</span>
-                            </a>
-                        </li>
+                       
                         <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
                             <a href="<?= base_url('saw/hasil') ?>" class="sidebar-link">
                                 <i class="bi bi-bar-chart-steps"></i>

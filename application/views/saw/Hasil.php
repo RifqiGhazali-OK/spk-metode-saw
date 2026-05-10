@@ -14,7 +14,7 @@ $hasil = isset($hasil) ? $hasil : array();
     <!-- Periode & Tombol Export -->
     <div class="row mb-3 align-items-end">
         <div class="col-md-4">
-            <label class="form-label">Periode Penilaian</label>
+            <label class="form-label">Periode:</label>
             <select id="periode_id" class="form-select" onchange="location.href='?periode_id='+this.value">
                 <?php foreach ($periode_list as $p): ?>
                     <option value="<?= isset($p['id']) ? $p['id'] : '' ?>" <?= ((isset($p['id']) ? $p['id'] : '') == $periode_id_selected) ? 'selected' : '' ?>>
