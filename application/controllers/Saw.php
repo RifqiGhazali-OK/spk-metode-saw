@@ -190,7 +190,7 @@ class Saw extends CI_Controller
             'alternatif' => $alternatif,
         ];
 
-        // → langsung tampilkan tabel detail tanpa perlu klik apapun
+        // → langsung tampilkan tabel detail jika penilaian sudah tersimpan
         if ($cek_hasil > 0 && $penilaian_lengkap && !$force_edit && !$tombol_proses) {
             $saw        = $this->_calculate_saw($user_id, $periode_id);
             $show_hasil = true;
@@ -249,36 +249,42 @@ class Saw extends CI_Controller
     // ======================================================
     // SAVE NILAI AJAX
     // ======================================================
-
     public function penilaian_save(): void
     {
         $user_id       = (int)$this->session->userdata('id');
         $alternatif_id = (int)$this->input->post('alternatif_id');
         $kriteria_id   = (int)$this->input->post('kriteria_id');
-        $nilai         = (float)$this->input->post('nilai');
-        $periode_id    = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
+
+        // Konversi format angka Indonesia
+        $nilai_input = str_replace(',', '.', $this->input->post('nilai'));
+        $nilai       = (float)$nilai_input;
+
+        $periode_id = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
 
         // VALIDASI INPUT
-        if (!$alternatif_id || !$kriteria_id || $nilai < 0.1) {
-            echo json_encode(['status' => 'error', 'message' => 'Data tidak valid.']);
+        if (!$alternatif_id || !$kriteria_id || $nilai <= 0) {
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Data tidak valid.'
+            ]);
             return;
         }
 
-        $exists = $this->Nilai_model->exists($user_id, $alternatif_id, $kriteria_id, $periode_id);
+        $this->Nilai_model->delete_nilai(
+            $user_id,
+            $alternatif_id,
+            $kriteria_id,
+            $periode_id
+        );
 
-        if ($exists) {
-            $this->Nilai_model->update_nilai((int)$exists->id, $nilai);
-        } else {
-            $this->Nilai_model->insert_nilai([
-                'user_id'       => $user_id,
-                'periode_id'    => $periode_id,
-                'alternatif_id' => $alternatif_id,
-                'kriteria_id'   => $kriteria_id,
-                'nilai'         => $nilai,
-            ]);
-        }
+        $this->Nilai_model->insert_nilai([
+            'user_id'       => $user_id,
+            'periode_id'    => $periode_id,
+            'alternatif_id' => $alternatif_id,
+            'kriteria_id'   => $kriteria_id,
+            'nilai'         => $nilai,
+        ]);
 
-        // Response AJAX sekarang menyertakan info kelengkapan.
         $alternatif       = $this->Alternatif_model->get_all_by_periode($periode_id);
         $kriteria         = $this->Kriteria_model->get_all();
         $total_required   = count($alternatif) * count($kriteria);

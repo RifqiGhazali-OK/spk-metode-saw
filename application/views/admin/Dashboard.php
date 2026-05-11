@@ -1,5 +1,5 @@
 <?php
-// Setup nilai default untuk menghindari error 'undefined variable'
+// Setup untuk menghindari error 'undefined variable'
 $nama_user        = $nama_user ?? 'Admin';
 $total_kriteria   = $total_kriteria ?? 0;
 $total_alternatif = $total_alternatif ?? 0;
@@ -86,7 +86,6 @@ $total_hasil      = $total_hasil ?? 0;
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center pb-3">
                     <h4 class="card-title mb-0">Ranking Alternatif (Top 10)</h4>
-                    <a href="<?= base_url('saw/hasil') ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">Lihat Semua</a>
                 </div>
                 <div class="card-body">
                     <div style="position: relative; height: 300px; width: 100%;">

@@ -60,7 +60,7 @@ foreach ($periode_list as $p) {
                                         </div>
                                     </th>
                                     <th width="10%">Kode</th>
-                                    <th width="25%">Nama Alternatif</th>
+                                    <th width="25%">Nama Karyawan</th>
                                     <th width="20%">Jabatan</th>
                                     <th width="20%">Periode</th>
                                     <th class="text-center" width="20%">Aksi</th>
@@ -172,14 +172,14 @@ foreach ($periode_list as $p) {
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        // ======================================================
+        // =====================
         // SWEETALERT CONFIG
-        // ======================================================
+        // =====================
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 1500,
+            timer: 1200,
             timerProgressBar: true,
             customClass: {
                 popup: 'shadow-sm border-0'
@@ -218,6 +218,7 @@ foreach ($periode_list as $p) {
                     id,
                     nama
                 } = this.dataset;
+
                 Swal.fire({
                     ...ConfirmDialog,
                     title: 'Konfirmasi Hapus',
@@ -228,14 +229,6 @@ foreach ($periode_list as $p) {
                     cancelButtonText: 'Batal'
                 }).then((res) => {
                     if (res.isConfirmed) {
-                        Swal.fire({
-                            title: 'Memproses...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
                         window.location.href = `<?= base_url('admin/alternatif_delete/') ?>${id}`;
                     }
                 });
@@ -262,14 +255,6 @@ foreach ($periode_list as $p) {
                     cancelButtonText: 'Batal'
                 }).then((res) => {
                     if (res.isConfirmed) {
-                        Swal.fire({
-                            title: 'Memproses...',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
                         document.getElementById('formHapusMassal').submit();
                     }
                 });

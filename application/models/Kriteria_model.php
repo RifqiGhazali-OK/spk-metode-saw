@@ -7,6 +7,8 @@ class Kriteria_model extends CI_Model
     
     public function get_all()
     {
+        $this->db->order_by('LENGTH(kode)', 'ASC');
+        $this->db->order_by('kode', 'ASC');
         return $this->db->get($this->table)->result_array();
     }
 

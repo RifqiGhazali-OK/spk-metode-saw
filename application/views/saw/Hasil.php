@@ -45,7 +45,7 @@ $hasil = isset($hasil) ? $hasil : array();
                                 <tr>
                                     <th class="text-start ps-4" style="width: 11%;">Rank</th>
                                     <th class="text-start ps-4" style="width: 12%;">Kode</th>
-                                    <th class="text-start ps-4" style="width: 22%;">Nama Alternatif</th>
+                                    <th class="text-start ps-4" style="width: 22%;">Nama Karyawan</th>
                                     <th class="text-start ps-4" style="width: 20%;">Jabatan</th>
                                     <th class="text-start ps-4" style="width: 20%;">Nilai Akhir</th>
                                     <th class="text-start ps-4" style="width: 20%;">Status</th>
