@@ -1,5 +1,5 @@
 <?php
-$role = 'admin'; 
+$role = 'admin';
 $active_menu = $active_menu ?? '';
 
 $nama_user = $nama_user ?? $this->session->userdata('nama');
@@ -73,15 +73,14 @@ $title = $title ?? 'SPK SAW';
 <body>
     <div id="app">
 
-        <!-- SIDEBAR -->
         <div id="sidebar" class="active">
             <div class="sidebar-wrapper active">
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="logo">
-                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-brand d-flex align-items-center gap-2">
-                                <i class="bi bi-bar-chart-fill text-primary fs-4"></i>
-                                <span style="font-weight:700;font-size:1.1rem;">SPK SAW</span>
+                        <div class="logo w-100">
+                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-brand d-flex flex-column align-items-start" style="line-height: 1.2;">
+                                <span class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Sistem Pendukung Keputusan</span>
+                                <span class="text-primary mt-1" style="font-size: 1.3rem; font-weight: 800;">Metode SAW</span>
                             </a>
                         </div>
                         <div class="sidebar-toggler x">
@@ -105,13 +104,13 @@ $title = $title ?? 'SPK SAW';
                         <li class="sidebar-title">Master Data</li>
                         <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
                             <a href="<?= base_url('admin/kriteria') ?>" class="sidebar-link">
-                                <i class="bi bi-sliders"></i>
+                                <i class="bi bi-pie-chart-fill"></i>
                                 <span>Kriteria & Bobot</span>
                             </a>
                         </li>
                         <li class="sidebar-item <?= ($active_menu == 'alternatif') ? 'active' : '' ?>">
                             <a href="<?= base_url('admin/alternatif') ?>" class="sidebar-link">
-                                <i class="bi bi-diagram-3"></i>
+                                <i class="bi bi-people-fill"></i>
                                 <span>Alternatif</span>
                             </a>
                         </li>
@@ -119,14 +118,14 @@ $title = $title ?? 'SPK SAW';
                         <li class="sidebar-title">SAW</li>
                         <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
                             <a href="<?= base_url('saw/penilaian') ?>" class="sidebar-link">
-                                <i class="bi bi-pencil-square"></i>
+                                <i class="bi bi-calculator-fill"></i>
                                 <span>Proses Hitung SAW</span>
                             </a>
                         </li>
-                       
+
                         <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
                             <a href="<?= base_url('saw/hasil') ?>" class="sidebar-link">
-                                <i class="bi bi-bar-chart-steps"></i>
+                                <i class="bi bi-bar-chart-line-fill"></i>
                                 <span>Hasil SAW</span>
                             </a>
                         </li>
@@ -183,7 +182,6 @@ $title = $title ?? 'SPK SAW';
             // Inisialisasi variabel untuk menghindari error undefined di Text Editor
             $content = isset($content) ? $content : '';
             ?>
-
             <div id="main-content">
                 <?= $content ?>
             </div>

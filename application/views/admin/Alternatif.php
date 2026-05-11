@@ -12,7 +12,6 @@ foreach ($periode_list as $p) {
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <div class="page-heading">
     <div class="page-title">
@@ -25,10 +24,11 @@ foreach ($periode_list as $p) {
     </div>
 
     <section class="section">
-        <div class="row mb-4 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label text-muted fw-semibold">Filter Periode</label>
-                <select id="filter_periode" class="form-select border border-secondary" onchange="location.href='?periode_id='+this.value">
+        <div class="row mb-3 align-items-end">
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Filter Periode</label>
+                <select id="filter_periode" class="form-select form-select-sm border-secondary" onchange="location.href='?periode_id='+this.value">
                     <option value="">Semua Periode</option>
                     <?php foreach ($periode_list as $p): ?>
                         <option value="<?= $p['id'] ?>" <?= ($periode_selected == $p['id']) ? 'selected' : '' ?>>
@@ -37,86 +37,92 @@ foreach ($periode_list as $p) {
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-8 text-md-end mt-3 mt-md-0">
-                <button type="button" class="btn btn-outline-danger me-2 px-3 fw-bold" id="btnHapusMassal">
-                    Hapus Terpilih
-                </button>
-                <button type="button" class="btn btn-primary px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAlternatif">
-                    Tambah Alternatif
-                </button>
-            </div>
-        </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-0 mt-3">
-                <form id="formHapusMassal" action="<?= base_url('admin/alternatif_delete_massal') ?>" method="post">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="text-secondary border-bottom">
-                                <tr>
-                                    <th class="ps-4" width="40">
-                                        <div class="form-check">
-                                            <input class="form-check-input border border-secondary" type="checkbox" id="select_all">
-                                        </div>
-                                    </th>
-                                    <th width="10%">Kode</th>
-                                    <th width="25%">Nama Karyawan</th>
-                                    <th width="20%">Jabatan</th>
-                                    <th width="20%">Periode</th>
-                                    <th class="text-center" width="20%">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($list)): ?>
-                                    <?php foreach ($list as $row): ?>
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input checkbox-item border border-secondary" type="checkbox" name="ids[]" value="<?= $row['id'] ?>">
-                                                </div>
-                                            </td>
-                                            <td><span class="badge bg-light-primary text-primary px-2 py-1"><?= htmlspecialchars($row['kode']) ?></span></td>
-                                            <td class="fw-semibold"><?= htmlspecialchars($row['nama']) ?></td>
-                                            <td class="text-muted"><?= htmlspecialchars($row['jabatan'] ?: '-') ?></td>
-                                            <td>
-                                                <span class="text-muted fw-semibold">
-                                                    <?= htmlspecialchars($periode_map[$row['periode_id']] ?? 'N/A') ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex justify-content-center gap-2">
-                                                    <button type="button" class="btn btn-sm btn-warning text-dark text-nowrap fw-bold px-3"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalAlternatifEdit"
-                                                        data-id="<?= $row['id'] ?>"
-                                                        data-kode="<?= htmlspecialchars($row['kode']) ?>"
-                                                        data-nama="<?= htmlspecialchars($row['nama']) ?>"
-                                                        data-jabatan="<?= htmlspecialchars($row['jabatan']) ?>"
-                                                        data-periode_id="<?= $row['periode_id'] ?>">
-                                                        Edit
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-danger text-nowrap btn-hapus fw-bold px-3"
-                                                        data-id="<?= $row['id'] ?>"
-                                                        data-nama="<?= htmlspecialchars($row['nama']) ?>">
-                                                        Hapus
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
+            <div class="col-md-8 col-lg-9 mt-3 mt-md-0">
+                <div class="d-flex justify-content-md-end gap-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm px-3 fw-bold" id="btnHapusMassal">
+                        Hapus Terpilih
+                    </button>
+
+                    <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAlternatif">
+                        Tambah Alternatif
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0 mt-3">
+            <form id="formHapusMassal" action="<?= base_url('admin/alternatif_delete_massal') ?>" method="post">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="text-secondary border-bottom">
+                            <tr>
+                                <th class="ps-4" width="40">
+                                    <div class="form-check">
+                                        <input class="form-check-input border border-secondary" type="checkbox" id="select_all">
+                                    </div>
+                                </th>
+                                <th width="10%">Kode</th>
+                                <th width="25%">Nama Karyawan</th>
+                                <th width="20%">Jabatan</th>
+                                <th width="20%">Periode</th>
+                                <th class="text-center" width="20%">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($list)): ?>
+                                <?php foreach ($list as $row): ?>
                                     <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
-                                            Belum ada data alternatif. Silakan tambahkan data baru.
+                                        <td class="ps-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input checkbox-item border border-secondary" type="checkbox" name="ids[]" value="<?= $row['id'] ?>">
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light-primary text-primary px-2 py-1"><?= htmlspecialchars($row['kode']) ?></span></td>
+                                        <td class="fw-semibold"><?= htmlspecialchars($row['nama']) ?></td>
+                                        <td class="text-muted"><?= htmlspecialchars($row['jabatan'] ?: '-') ?></td>
+                                        <td>
+                                            <span class="text-muted fw-semibold">
+                                                <?= htmlspecialchars($periode_map[$row['periode_id']] ?? 'N/A') ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button type="button" class="btn btn-sm btn-warning text-dark text-nowrap fw-bold px-3"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalAlternatifEdit"
+                                                    data-id="<?= $row['id'] ?>"
+                                                    data-kode="<?= htmlspecialchars($row['kode']) ?>"
+                                                    data-nama="<?= htmlspecialchars($row['nama']) ?>"
+                                                    data-jabatan="<?= htmlspecialchars($row['jabatan']) ?>"
+                                                    data-periode_id="<?= $row['periode_id'] ?>">
+                                                    Edit
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger text-nowrap btn-hapus fw-bold px-3"
+                                                    data-id="<?= $row['id'] ?>"
+                                                    data-nama="<?= htmlspecialchars($row['nama']) ?>">
+                                                    Hapus
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </form>
-            </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        Belum ada data alternatif untuk periode ini. Silahkan tambahkan data baru.
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
         </div>
+    </div>
     </section>
 </div>
 
@@ -135,19 +141,20 @@ foreach ($periode_list as $p) {
                     <div class="modal-body py-4">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label text-muted">Kode</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Kode</label>
                                 <input type="text" class="form-control border border-secondary" name="kode" id="<?= $id == 'modalAlternatifEdit' ? 'edit_kode' : 'kode' ?>" required>
                             </div>
                             <div class="col-md-8">
-                                <label class="form-label text-muted">Nama Lengkap</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Nama Lengkap</label>
                                 <input type="text" class="form-control border border-secondary" name="nama" id="<?= $id == 'modalAlternatifEdit' ? 'edit_nama' : 'nama' ?>" required>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label text-muted">Jabatan</label>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Jabatan</label>
                                 <input type="text" class="form-control border border-secondary" name="jabatan" id="<?= $id == 'modalAlternatifEdit' ? 'edit_jabatan' : 'jabatan' ?>">
                             </div>
-                            <div class="col-12">
-                                <label class="form-label text-muted">Periode Penilaian</label>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Periode Penilaian</label>
                                 <select class="form-select border border-secondary" name="periode_id" id="<?= $id == 'modalAlternatifEdit' ? 'edit_periode_id' : 'periode_id' ?>" required>
                                     <option value="">Pilih Periode...</option>
                                     <?php foreach ($periode_list as $p): ?>
@@ -168,7 +175,6 @@ foreach ($periode_list as $p) {
         </div>
     </div>
 <?php endforeach; ?>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 

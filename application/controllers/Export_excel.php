@@ -271,7 +271,7 @@ class Export_excel extends CI_Controller
             $row++;
 
             // Sub-Header Tabel Detail
-            $sheet->fromArray(['Kriteria', 'Xij (Mentah)', 'Rij (Normalisasi)', 'Wj (Bobot)', 'Wj × Rij'], NULL, "A$row");
+            $sheet->fromArray(['Kriteria', 'Xij (Nilai)', 'Rij (Normalisasi)', 'Wj (Bobot)', 'Wj × Rij'], NULL, "A$row");
             $sheet->getStyle("A$row:E$row")->applyFromArray($styleSubHeader);
             $sheet->getStyle("A$row:E$row")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $row++;

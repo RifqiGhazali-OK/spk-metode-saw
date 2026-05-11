@@ -25,9 +25,16 @@ $total_persen   = number_format($total_bobot * 100, 0);
     </div>
 
     <section class="section">
+        <div class="row mb-3">
+            <div class="col-12 text-end">
+                <button type="button" class="btn btn-primary btn-sm px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalKriteria">
+                    Tambah Kriteria
+                </button>
+            </div>
+        </div>
 
         <?php if (!$is_bobot_valid): ?>
-            <div class="alert alert-light-warning color-warning alert-dismissible show fade d-flex align-items-center">
+            <div class="alert alert-light-warning color-warning alert-dismissible show fade d-flex align-items-center shadow-sm mb-4">
                 <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
                 <div>
                     <strong>Perhatian:</strong> Total bobot kriteria saat ini adalah <b><?= $total_persen ?>%</b>.
@@ -37,19 +44,13 @@ $total_persen   = number_format($total_bobot * 100, 0);
             </div>
         <?php endif; ?>
 
-        <div class="card shadow-sm">
-            <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3">
-                <h5 class="card-title mb-0">Daftar Kriteria</h5>
-                <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalKriteria">
-                    Tambah Kriteria
-                </button>
-            </div>
-            <div class="card-body mt-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0 mt-3">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="text-secondary border-bottom">
                             <tr>
-                                <th width="5%">No</th>
+                                <th class="ps-4" width="5%">No</th>
                                 <th width="12%">Kode</th>
                                 <th>Nama Kriteria</th>
                                 <th width="15%">Tipe</th>
@@ -59,15 +60,13 @@ $total_persen   = number_format($total_bobot * 100, 0);
                         </thead>
                         <tbody>
                             <?php if (!empty($list)): ?>
-                                <?php $no = 1; // Inisialisasi nomor urut berurutan 
-                                ?>
+                                <?php $no = 1; ?>
                                 <?php foreach ($list as $row): ?>
                                     <?php $bobot_tampil = (float)$row['bobot'] * 100; ?>
                                     <tr>
-                                        <td class="text-muted fw-bold"><?= $no++ ?></td>
-
-                                        <td><span class="badge bg-primary"><?= htmlspecialchars($row['kode']) ?></span></td>
-                                        <td class="fw-semibold"><?= htmlspecialchars($row['nama']) ?></td>
+                                        <td class="ps-4 text-muted fw-bold"><?= $no++ ?></td>
+                                        <td><span class="badge bg-light-primary text-primary px-2 py-1"><?= htmlspecialchars($row['kode']) ?></span></td>
+                                        <td class="fw-semibold text-dark"><?= htmlspecialchars($row['nama']) ?></td>
                                         <td>
                                             <?php if ($row['tipe'] === 'benefit'): ?>
                                                 <span class="badge bg-light-success text-success px-2 py-1">Benefit</span>
@@ -78,7 +77,7 @@ $total_persen   = number_format($total_bobot * 100, 0);
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <span class="me-3 fw-semibold"><?= number_format($bobot_tampil, 0) ?>%</span>
-                                                <div class="progress progress-sm flex-grow-1" style="height: 6px;">
+                                                <div class="progress flex-grow-1" style="height: 6px;">
                                                     <div class="progress-bar <?= $is_bobot_valid ? 'bg-primary' : 'bg-warning' ?>"
                                                         style="width: <?= $bobot_tampil ?>%">
                                                     </div>
@@ -97,7 +96,6 @@ $total_persen   = number_format($total_bobot * 100, 0);
                                                     data-bobot="<?= number_format($bobot_tampil, 0) ?>">
                                                     Edit
                                                 </button>
-
                                                 <button type="button" class="btn btn-sm btn-danger text-nowrap btn-hapus fw-bold px-3"
                                                     data-id="<?= $row['id'] ?>"
                                                     data-nama="<?= htmlspecialchars($row['nama']) ?>">
@@ -110,7 +108,7 @@ $total_persen   = number_format($total_bobot * 100, 0);
                             <?php else: ?>
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
-                                        Belum ada data kriteria. Silakan tambahkan kriteria baru.
+                                        Belum ada data kriteria. Silahkan tambahkan kriteria baru.
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -139,22 +137,22 @@ $total_persen   = number_format($total_bobot * 100, 0);
                     <div class="modal-body py-4">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label text-muted fw-semibold">Kode</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Kode</label>
                                 <input type="text" class="form-control border border-secondary" name="kode" id="<?= $id == 'modalKriteriaEdit' ? 'edit_kode' : 'kode' ?>" required>
                             </div>
                             <div class="col-md-8">
-                                <label class="form-label text-muted fw-semibold">Nama Kriteria</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Nama Kriteria</label>
                                 <input type="text" class="form-control border border-secondary" name="nama" id="<?= $id == 'modalKriteriaEdit' ? 'edit_nama' : 'nama' ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted fw-semibold">Tipe</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Tipe</label>
                                 <select class="form-select border border-secondary" name="tipe" id="<?= $id == 'modalKriteriaEdit' ? 'edit_tipe' : 'tipe' ?>" required>
-                                    <option value="benefit">Benefit (Makin besar makin baik)</option>
-                                    <option value="cost">Cost (Makin kecil makin baik)</option>
+                                    <option value="benefit">Benefit</option>
+                                    <option value="cost">Cost</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted fw-semibold">Nilai Bobot</label>
+                                <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Nilai Bobot (%)</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control border border-secondary" name="bobot" id="<?= $id == 'modalKriteriaEdit' ? 'edit_bobot' : 'bobot' ?>" min="0" max="100" required>
                                     <span class="input-group-text bg-light border border-secondary fw-bold">%</span>
@@ -177,10 +175,6 @@ $total_persen   = number_format($total_bobot * 100, 0);
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-        // =====================
-        // SWEETALERT CONFIG
-        // =====================
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -208,14 +202,6 @@ $total_persen   = number_format($total_bobot * 100, 0);
             });
         <?php endif; ?>
 
-        <?php if ($this->session->flashdata('error')): ?>
-            Toast.fire({
-                icon: 'error',
-                title: '<?= addslashes($this->session->flashdata('error')) ?>'
-            });
-        <?php endif; ?>
-
-        // Hapus Kriteria (Tanpa Loading Animation)
         document.querySelectorAll('.btn-hapus').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -223,7 +209,6 @@ $total_persen   = number_format($total_bobot * 100, 0);
                     id,
                     nama
                 } = this.dataset;
-
                 Swal.fire({
                     ...ConfirmDialog,
                     title: 'Konfirmasi Hapus',
@@ -232,22 +217,19 @@ $total_persen   = number_format($total_bobot * 100, 0);
                     showCancelButton: true,
                     confirmButtonText: 'Ya, Hapus',
                     cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Langsung redirect ke fungsi controller, tanpa animasi memproses
+                }).then((res) => {
+                    if (res.isConfirmed) {
                         window.location.href = `<?= base_url('admin/kriteria_delete/') ?>${id}`;
                     }
                 });
             });
         });
 
-        // Tampilkan Data di Modal Edit
         const modalEdit = document.getElementById('modalKriteriaEdit');
         if (modalEdit) {
             modalEdit.addEventListener('show.bs.modal', function(e) {
                 const btn = e.relatedTarget;
                 const form = modalEdit.querySelector('#formEditKriteria');
-
                 form.action = `<?= base_url('admin/kriteria_update/') ?>${btn.dataset.id}`;
                 form.querySelector('#edit_kode').value = btn.dataset.kode;
                 form.querySelector('#edit_nama').value = btn.dataset.nama;

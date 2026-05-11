@@ -13,9 +13,9 @@ $hasil = isset($hasil) ? $hasil : array();
 
     <!-- Periode & Tombol Export -->
     <div class="row mb-3 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">Periode:</label>
-            <select id="periode_id" class="form-select" onchange="location.href='?periode_id='+this.value">
+        <div class="col-md-4 col-lg-3">
+            <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Filter Periode</label>
+            <select id="periode_id" class="form-select form-select-sm border-secondary" onchange="location.href='?periode_id='+this.value">
                 <?php foreach ($periode_list as $p): ?>
                     <option value="<?= isset($p['id']) ? $p['id'] : '' ?>" <?= ((isset($p['id']) ? $p['id'] : '') == $periode_id_selected) ? 'selected' : '' ?>>
                         <?= isset($p['nama']) ? htmlspecialchars($p['nama']) : '' ?>
@@ -24,10 +24,17 @@ $hasil = isset($hasil) ? $hasil : array();
             </select>
         </div>
 
-        <div class="col-md-8 text-end">
-            <a href="<?= base_url('export_excel?periode_id=' . $periode_id_selected) ?>" class="btn btn-success">
-                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
-            </a>
+        <!-- Tombol Export - sejajar dengan filter periode -->
+        <div class="col-md-8 col-lg-9 text-end">
+            <?php if (!empty($hasil)): ?>
+                <a href="<?= base_url('export_excel?periode_id=' . $periode_id_selected) ?>" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </a>
+            <?php else: ?>
+                <button type="button" class="btn btn-secondary" disabled>
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -66,8 +73,7 @@ $hasil = isset($hasil) ? $hasil : array();
                                             </td>
 
                                             <td class="text-start ps-4">
-                                                <code class="fw-bold small text-primary"><?= htmlspecialchars($row['kode']) ?>
-                                                </code>
+                                                <code class="fw-bold small text-primary"><?= htmlspecialchars($row['kode']) ?></code>
                                             </td>
 
                                             <td class="text-start fw-semibold text-dark text-truncate ps-4"><?= htmlspecialchars($row['nama_alternatif']) ?></td>
@@ -96,22 +102,22 @@ $hasil = isset($hasil) ? $hasil : array();
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
-
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="6" class="py-5">
-                                                <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
-                                                        <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
-                                                    </div>
-                                                    <h5 class="text-dark fw-bold mb-1">Data Tidak Ditemukan</h5>
-                                                    <p class="text-muted mb-0">Belum ada hasil perhitungan untuk periode <strong><?= htmlspecialchars($periode_id_selected) ?></strong>.</p>
-                                                    <small class="text-muted mt-2">Silakan <a href="<?= base_url('saw/penilaian') ?>" class="text-decoration-none fw-bold">Input Penilaian</a> terlebih dahulu.</small>
-                                                </div>
-                                            </td>
                                         </tr>
-                                    <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="py-5">
+                                            <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+                                                </div>
+                                                <h5 class="text-dark fw-bold mb-1">Data Tidak Ditemukan</h5>
+                                                <p class="text-muted mb-0">Belum ada hasil perhitungan untuk periode <strong><?= htmlspecialchars($periode_id_selected) ?></strong>.</p>
+                                                <small class="text-muted mt-2">Silahkan <a href="<?= base_url('saw/penilaian') ?>" class="text-decoration-none fw-bold">Input Penilaian</a> terlebih dahulu.</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>

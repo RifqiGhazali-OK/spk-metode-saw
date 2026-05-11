@@ -25,7 +25,7 @@ $total_hasil      = $total_hasil ?? 0;
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body py-2 px-3 d-flex align-items-center">
                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                        <i class="bi bi-list-check fs-5"></i>
+                        <i class="bi bi-clipboard-check-fill"></i>
                     </div>
                     <div>
                         <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Kriteria</p>
@@ -39,7 +39,7 @@ $total_hasil      = $total_hasil ?? 0;
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body py-2 px-3 d-flex align-items-center">
                     <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                        <i class="bi bi-people fs-5"></i>
+                        <i class="bi bi-people-fill"></i>
                     </div>
                     <div>
                         <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Karyawan</p>
@@ -53,7 +53,7 @@ $total_hasil      = $total_hasil ?? 0;
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body py-2 px-3 d-flex align-items-center">
                     <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                        <i class="bi bi-bar-chart fs-5"></i>
+                        <i class="bi bi-clipboard-data-fill"></i>
                     </div>
                     <div>
                         <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Telah Dinilai</p>
