@@ -67,7 +67,7 @@
                     <thead class="table-light">
                         <tr>
                             <th rowspan="2" style="width: 18%; vertical-align: middle; background-color: #f8f9fa;">Alternatif / Jabatan</th>
-                            <th colspan="<?= $jumlah_kriteria ?>" class="text-center" style="background-color: #f8f9fa;">Kriteria Penilaian</th>
+                            <th colspan="<?= $jumlah_kriteria ?>" class="text-center" style="background-color: #f8f9fa;">Kriteria & Bobot</th>
                         </tr>
                         <tr>
                             <?php foreach ($kriteria as $k): ?>
