@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SPK SAW | Sistem Pendukung Keputusan Metode SAW</title>
+    <title>LOGIN - Sistem Pendukung Keputusan Metode SAW</title>
 
     <!-- Mazer CSS & Bootstrap Icons -->
     <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app.css') ?>">
@@ -13,7 +13,7 @@
 
     <style>
         body {
-            background: #435ebe;
+            background: #d5ddff;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -104,7 +104,7 @@
 
     <div class="card card-login shadow-sm">
         <div class="card-body">
-            <div class="system-name">SPK SAW</div>
+            <div class="system-name">LOGIN</div>
             <div class="subtitle">Sistem Pendukung Keputusan Metode SAW</div>
 
             <?php if ($this->session->flashdata('error')): ?>

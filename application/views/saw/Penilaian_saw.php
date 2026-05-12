@@ -194,19 +194,17 @@
                         </tbody>
                     </table>
                 </div>
-            <?php endforeach; ?>
-        </div> <!-- penutup card-body -->
-
-        <div class="card-footer text-center bg-transparent border-0">
-            <form action="<?= base_url('saw/simpan_hasil') ?>" method="post" class="d-inline">
-                <input type="hidden" name="final" value='<?= json_encode($saw['final']) ?>'>
-                <input type="hidden" name="periode_id" value="<?= $periode_id_selected ?>">
-                <button type="submit" class="btn btn-success">Lihat Ranking</button>
-            </form>
-            <a href="<?= base_url('saw/penilaian?periode_id=' . $periode_id_selected . '&force_edit=1') ?>" class="btn btn-secondary ms-2">Input Ulang / Edit Nilai</a>
-        </div>
-    </div>
-
+            <?php endforeach; ?>   
+            <div class="text-center" style="margin-top: -22px;">
+                <form action="<?= base_url('saw/simpan_hasil') ?>" method="post" class="d-inline">
+                    <input type="hidden" name="final" value='<?= json_encode($saw['final']) ?>'>
+                    <input type="hidden" name="periode_id" value="<?= $periode_id_selected ?>">
+                    <button type="submit" class="btn btn-success">Lihat Ranking</button>
+                </form>
+                <a href="<?= base_url('saw/penilaian?periode_id=' . $periode_id_selected . '&force_edit=1') ?>" class="btn btn-secondary ms-2">Input Ulang / Edit Nilai</a>
+            </div>
+        </div> 
+    </div> 
 <?php endif; ?>
 
 <!-- jQuery -->
