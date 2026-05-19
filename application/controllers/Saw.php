@@ -7,8 +7,8 @@ class Saw extends CI_Controller
     {
         parent::__construct();
 
+        // Load library dan model yang dibutuhkan
         $this->load->library('form_validation');
-
         $this->load->model([
             'Alternatif_model',
             'Kriteria_model',
@@ -18,36 +18,26 @@ class Saw extends CI_Controller
             'Nilai_model'
         ]);
 
-        // AUTH
-        if (
-            !$this->session->userdata('logged_in') ||
-            $this->session->userdata('role') !== 'admin'
-        ) {
+        // Proteksi Halaman (Auth)
+        if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('auth');
         }
 
-        // SET NAMA
+        // Set nama user ke session jika belum ada
         if (!$this->session->userdata('nama')) {
-            $user = $this->User_model->get_by_id(
-                (int)$this->session->userdata('id')
-            );
+            $user = $this->User_model->get_by_id((int)$this->session->userdata('id'));
             if ($user) {
-                $this->session->set_userdata(
-                    'nama',
-                    $user->username ?? $user->email
-                );
+                $this->session->set_userdata('nama', $user->username ?? $user->email);
             }
         }
     }
 
-    // ======================================================
-    // HELPER
-    // ======================================================
-
+    /* ====================================================
+     * FUNGSI HELPER
+     * ==================================================== */
     private function _get_nama_user(): string
     {
-        return
-            $this->session->userdata('nama')
+        return $this->session->userdata('nama')
             ?? $this->session->userdata('username')
             ?? $this->session->userdata('email')
             ?? 'Administrator';
@@ -58,39 +48,44 @@ class Saw extends CI_Controller
         $year  = date('Y');
         $month = date('m');
 
+        // Cek periode bulan ini
         $this->db->where('YEAR(tanggal_mulai)', $year);
         $this->db->where('MONTH(tanggal_mulai)', $month);
         $periode = $this->db->get('periode')->row();
+        if ($periode) {
+            return (int)$periode->id;
+        }
 
-        if ($periode) return (int)$periode->id;
-
+        // Jika tidak ada, ambil periode pertama di tahun ini
         $this->db->where('YEAR(tanggal_mulai)', $year);
         $this->db->order_by('tanggal_mulai', 'ASC');
         $periode = $this->db->get('periode')->row();
-
         return $periode ? (int)$periode->id : 1;
     }
 
-    // ======================================================
-    // HITUNG SAW
-    // ======================================================
-
+    /* ====================================================
+     * PROSES PERHITUNGAN METODE SAW
+     * ==================================================== */
     private function _calculate_saw(int $user_id, int $periode_id): array
     {
+        // 1. Ambil data master dan nilai
         $kriteria   = $this->Kriteria_model->get_all();
         $alternatif = $this->Alternatif_model->get_all_by_periode($periode_id);
         $penilaian  = $this->Nilai_model->get_by_user_and_periode($user_id, $periode_id);
 
+        // 2. Bentuk Matriks Keputusan (X)
         $matrix = [];
         foreach ($alternatif as $alt) {
             foreach ($kriteria as $krit) {
                 $matrix[$alt['id']][$krit['id']] = 0;
             }
         }
+
         foreach ($penilaian as $p) {
             $matrix[$p['alternatif_id']][$p['kriteria_id']] = (float)$p['nilai'];
         }
 
+        // 3. Proses Normalisasi (R) dan Pembobotan (V)
         $normalized = [];
         $weighted   = [];
         $final      = [];
@@ -102,6 +97,7 @@ class Saw extends CI_Controller
             $kolom = array_column($matrix, $kid);
 
             if ($tipe === 'benefit') {
+                // Kriteria Benefit (Maksimum)
                 $max = !empty($kolom) ? max($kolom) : 1;
                 if ($max <= 0) $max = 1;
 
@@ -111,9 +107,10 @@ class Saw extends CI_Controller
 
                     $normalized[$aid][$kid] = $norm;
                     $weighted[$aid][$kid]   = $norm * $bobot;
-                    $final[$aid] = ($final[$aid] ?? 0) + $weighted[$aid][$kid];
+                    $final[$aid]            = ($final[$aid] ?? 0) + $weighted[$aid][$kid];
                 }
             } else {
+                // Kriteria Cost (Minimum)
                 $valid = array_filter($kolom, fn($v) => $v > 0);
                 $min   = !empty($valid) ? min($valid) : 1;
 
@@ -124,7 +121,7 @@ class Saw extends CI_Controller
 
                     $normalized[$aid][$kid] = $norm;
                     $weighted[$aid][$kid]   = $norm * $bobot;
-                    $final[$aid] = ($final[$aid] ?? 0) + $weighted[$aid][$kid];
+                    $final[$aid]            = ($final[$aid] ?? 0) + $weighted[$aid][$kid];
                 }
             }
         }
@@ -139,14 +136,12 @@ class Saw extends CI_Controller
         ];
     }
 
-    // ======================================================
-    // PENILAIAN + PROSES SAW (DIGABUNG 1 HALAMAN)
-    // ======================================================
-
+    /* ====================================================
+     * HALAMAN PENILAIAN & PROSES SAW
+     * ==================================================== */
     public function penilaian(): void
     {
         $user_id = (int)$this->session->userdata('id');
-
         $periode_id = (int)(
             $this->input->post('periode_id')
             ?: $this->input->get('periode_id')
@@ -158,28 +153,29 @@ class Saw extends CI_Controller
         $nilai_existing = $this->Nilai_model->get_by_user_and_periode($user_id, $periode_id);
         $periode_list   = $this->db->order_by('tanggal_mulai', 'ASC')->get('periode')->result_array();
 
+        // Mapping nilai untuk ditampilkan di view
         $nilai_map = [];
         foreach ($nilai_existing as $n) {
             $nilai_map[$n['alternatif_id']][$n['kriteria_id']] = $n['nilai'];
         }
 
-        // VALIDASI KELENGKAPAN
-        $total_required   = count($alternatif) * count($kriteria);
-        $jumlah_penilaian = $this->Nilai_model->count_by_user_and_periode($user_id, $periode_id);
+        // Validasi kelengkapan data penilaian
+        $total_required    = count($alternatif) * count($kriteria);
+        $jumlah_penilaian  = $this->Nilai_model->count_by_user_and_periode($user_id, $periode_id);
         $penilaian_lengkap = ($total_required > 0 && $jumlah_penilaian >= $total_required);
 
-        // PARAMETER KONTROL
+        // Parameter kontrol tampilan
         $force_edit    = (bool)$this->input->get('force_edit');
         $tombol_proses = (bool)$this->input->post('proses_hitung');
 
-        // CEK HASIL SUDAH PERNAH DISIMPAN DI DB
+        // Cek apakah hasil sudah pernah disimpan sebelumnya
         $cek_hasil = $this->db
             ->where('user_id', $user_id)
             ->where('periode_id', $periode_id)
             ->get('saw_hasil')
             ->num_rows();
 
-        // DEFAULT
+        // Setup default nilai awal
         $show_hasil = false;
         $saw = [
             'matrix'     => [],
@@ -190,13 +186,13 @@ class Saw extends CI_Controller
             'alternatif' => $alternatif,
         ];
 
-        // → langsung tampilkan tabel detail jika penilaian sudah tersimpan
+        /* KONDISI TAMPILAN HALAMAN */
+        // Kondisi 1: Hasil sudah tersimpan & lengkap -> Langsung tampil hasil perhitungan
         if ($cek_hasil > 0 && $penilaian_lengkap && !$force_edit && !$tombol_proses) {
             $saw        = $this->_calculate_saw($user_id, $periode_id);
             $show_hasil = true;
         }
-
-        // KONDISI 2: Tombol "Proses Hitung" ditekan dari form input
+        // Kondisi 2: Tombol "Proses Hitung" diklik 
         elseif ($tombol_proses) {
             if (!$penilaian_lengkap) {
                 $this->session->set_flashdata(
@@ -209,59 +205,55 @@ class Saw extends CI_Controller
             $saw        = $this->_calculate_saw($user_id, $periode_id);
             $show_hasil = true;
         }
+        // Kondisi 3: force_edit=1 atau belum ada hasil sama sekali -> Form input penilaian otomatis tampil
 
-        // KONDISI 3: force_edit=1 atau belum ada hasil sama sekali
-        // → tampil form input saja, $show_hasil tetap false
         $data = [
-            // PAGE
-            'title'       => 'Penilaian & Proses SAW',
-            'active_menu' => 'penilaian',
+            // Page Setup
+            'title'               => 'Penilaian & Proses SAW',
+            'active_menu'         => 'penilaian',
 
-            // USER
-            'role'      => $this->session->userdata('role'),
-            'nama_user' => $this->_get_nama_user(),
+            // User Info
+            'role'                => $this->session->userdata('role'),
+            'nama_user'           => $this->_get_nama_user(),
 
-            // MASTER
-            'alternatif'   => $alternatif,
-            'kriteria'     => $kriteria,
-            'periode_list' => $periode_list,
+            // Data Master
+            'alternatif'          => $alternatif,
+            'kriteria'            => $kriteria,
+            'periode_list'        => $periode_list,
 
-            // PENILAIAN
+            // Status Penilaian
             'nilai_map'           => $nilai_map,
             'periode_id_selected' => $periode_id,
             'penilaian_lengkap'   => $penilaian_lengkap,
             'total_required'      => $total_required,
             'jumlah_penilaian'    => $jumlah_penilaian,
 
-            // SAW
-            'show_hasil' => $show_hasil,
-            'saw'        => $saw,
-            'matrix'     => $saw['matrix'],
-            'normalized' => $saw['normalized'],
-            'weighted'   => $saw['weighted'],
-            'final'      => $saw['final'],
+            // Hasil SAW (jika ditampilkan)
+            'show_hasil'          => $show_hasil,
+            'saw'                 => $saw,
+            'matrix'              => $saw['matrix'],
+            'normalized'          => $saw['normalized'],
+            'weighted'            => $saw['weighted'],
+            'final'               => $saw['final'],
         ];
 
         $data['content'] = $this->load->view('saw/penilaian_saw', $data, true);
         $this->load->view('layout/template', $data);
     }
 
-    // ======================================================
-    // SAVE NILAI AJAX
-    // ======================================================
+    /* ====================================================
+     * AJAX: SIMPAN NILAI SATUAN
+     * ==================================================== */
     public function penilaian_save(): void
     {
         $user_id       = (int)$this->session->userdata('id');
         $alternatif_id = (int)$this->input->post('alternatif_id');
         $kriteria_id   = (int)$this->input->post('kriteria_id');
+        $periode_id    = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
 
-        // Konversi format angka Indonesia
+        // Konversi format angka jika ada koma
         $nilai_input = str_replace(',', '.', $this->input->post('nilai'));
         $nilai       = (float)$nilai_input;
-
-        $periode_id = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
-
-        // VALIDASI INPUT
         if (!$alternatif_id || !$kriteria_id || $nilai <= 0) {
             echo json_encode([
                 'status'  => 'error',
@@ -270,13 +262,8 @@ class Saw extends CI_Controller
             return;
         }
 
-        $this->Nilai_model->delete_nilai(
-            $user_id,
-            $alternatif_id,
-            $kriteria_id,
-            $periode_id
-        );
-
+        // Hapus nilai lama, lalu insert yang baru (replace)
+        $this->Nilai_model->delete_nilai($user_id, $alternatif_id, $kriteria_id, $periode_id);
         $this->Nilai_model->insert_nilai([
             'user_id'       => $user_id,
             'periode_id'    => $periode_id,
@@ -285,6 +272,7 @@ class Saw extends CI_Controller
             'nilai'         => $nilai,
         ]);
 
+        // Cek kembali kelengkapan untuk di-return ke AJAX
         $alternatif       = $this->Alternatif_model->get_all_by_periode($periode_id);
         $kriteria         = $this->Kriteria_model->get_all();
         $total_required   = count($alternatif) * count($kriteria);
@@ -298,10 +286,9 @@ class Saw extends CI_Controller
         ]);
     }
 
-    // ======================================================
-    // SIMPAN HASIL
-    // ======================================================
-
+    /* ====================================================
+     * SIMPAN HASIL AKHIR KE DATABASE
+     * ==================================================== */
     public function simpan_hasil(): void
     {
         $user_id    = (int)$this->session->userdata('id');
@@ -314,10 +301,11 @@ class Saw extends CI_Controller
             return;
         }
 
+        // Urutkan nilai dari yang tertinggi ke terendah
         arsort($final);
-
         $ranking    = 1;
         $data_hasil = [];
+
         foreach ($final as $alt_id => $nilai_akhir) {
             $data_hasil[] = [
                 'user_id'       => $user_id,
@@ -328,25 +316,32 @@ class Saw extends CI_Controller
                 'status'        => $nilai_akhir >= 0.70 ? 'Layak' : 'Pertimbangkan',
             ];
         }
-        $this->db->delete('saw_hasil', ['user_id' => $user_id, 'periode_id' => $periode_id]);
+
+        // Refresh tabel hasil untuk periode yang dipilih
+        $this->db->delete('saw_hasil', [
+            'user_id'    => $user_id,
+            'periode_id' => $periode_id
+        ]);
+
         if (!empty($data_hasil)) {
             $this->db->insert_batch('saw_hasil', $data_hasil);
             $this->session->set_flashdata('success', 'Hasil SAW berhasil disimpan.');
         }
+
         redirect('saw/hasil?periode_id=' . $periode_id);
     }
 
-    // ======================================================
-    // HASIL
-    // ======================================================
-
+    /* ====================================================
+     * HALAMAN HASIL / RANKING
+     * ==================================================== */
     public function hasil(): void
     {
         $user_id    = (int)$this->session->userdata('id');
         $periode_id = (int)($this->input->get('periode_id') ?: $this->_get_active_periode());
-
         $periode_list = $this->db->order_by('tanggal_mulai', 'ASC')->get('periode')->result_array();
-        $hasil        = $this->Hasil_model->get_ranking(100, $user_id, $periode_id);
+
+        // Ambil data ranking dari model
+        $hasil = $this->Hasil_model->get_ranking(100, $user_id, $periode_id);
 
         $data = [
             'title'               => 'Hasil SAW',
