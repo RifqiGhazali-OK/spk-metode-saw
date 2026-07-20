@@ -113,7 +113,7 @@ $hasil = isset($hasil) ? $hasil : array();
                                                 </div>
                                                 <h5 class="text-dark fw-bold mb-1">Data Tidak Ditemukan</h5>
                                                 <p class="text-muted mb-0">Belum ada hasil perhitungan untuk periode <strong><?= htmlspecialchars($periode_id_selected) ?></strong>.</p>
-                                                <small class="text-muted mt-2">Silahkan <a href="<?= base_url('saw/penilaian') ?>" class="text-decoration-none fw-bold">Input Penilaian</a> terlebih dahulu.</small>
+                                                <small class="text-muted mt-2">Silakan <a href="<?= base_url('saw/penilaian') ?>" class="text-decoration-none fw-bold">Masukkan Penilaian</a> terlebih dahulu.</small>
                                             </div>
                                         </td>
                                     </tr>

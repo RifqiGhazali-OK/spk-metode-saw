@@ -33,14 +33,24 @@ $total_persen   = number_format($total_bobot * 100, 0);
             </div>
         </div>
 
+        <?php if ($this->session->flashdata('error')): ?>
+            <div class="alert alert-light-danger color-danger alert-dismissible show fade d-flex align-items-center shadow-sm mb-4">
+                <i class="bi bi-x-circle-fill fs-5 me-3 lh-1 d-flex align-items-center"></i>
+                <div class="flex-grow-1">
+                    <?= $this->session->flashdata('error') ?>
+                </div>
+                <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close" style="align-self: center;"></button>
+            </div>
+        <?php endif; ?>
+
         <?php if (!$is_bobot_valid): ?>
             <div class="alert alert-light-warning color-warning alert-dismissible show fade d-flex align-items-center shadow-sm mb-4">
-                <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
-                <div>
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 lh-1 d-flex align-items-center"></i>
+                <div class="flex-grow-1">
                     <strong>Perhatian:</strong> Total bobot kriteria saat ini adalah <b><?= $total_persen ?>%</b>.
                     Sistem membutuhkan total bobot persis <b>100%</b> agar perhitungan dapat berjalan akurat.
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close" style="align-self: center;"></button>
             </div>
         <?php endif; ?>
 
@@ -108,7 +118,7 @@ $total_persen   = number_format($total_bobot * 100, 0);
                             <?php else: ?>
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
-                                        Belum ada data kriteria. Silahkan tambahkan kriteria baru.
+                                        Belum ada data kriteria. Silakan tambahkan kriteria baru.
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -164,7 +174,7 @@ $total_persen   = number_format($total_bobot * 100, 0);
                     <div class="modal-footer border-top pt-3">
                         <button type="button" class="btn btn-light-secondary px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-<?= $id == 'modalKriteria' ? 'primary' : 'warning text-dark' ?> px-4 ms-2 fw-bold">
-                            <?= $id == 'modalKriteria' ? 'Simpan' : 'Update Data' ?>
+                            <?= $id == 'modalKriteria' ? 'Simpan' : 'Simpan Perubahan' ?>
                         </button>
                     </div>
                 </form>

@@ -113,7 +113,7 @@ foreach ($periode_list as $p) {
                             <?php else: ?>
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
-                                        Belum ada data alternatif untuk periode ini. Silahkan tambahkan data baru.
+                                        Belum terdapat data alternatif untuk periode ini. Silakan tambahkan data alternatif terlebih dahulu.
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -167,7 +167,7 @@ foreach ($periode_list as $p) {
                     <div class="modal-footer border-top pt-3">
                         <button type="button" class="btn btn-light-secondary px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-<?= $id == 'modalAlternatif' ? 'primary' : 'warning text-dark' ?> px-4 ms-2 fw-bold">
-                            <?= $id == 'modalAlternatif' ? 'Simpan' : 'Update Data' ?>
+                            <?= $id == 'modalAlternatif' ? 'Simpan' : 'Simpan Perubahan' ?>
                         </button>
                     </div>
                 </form>

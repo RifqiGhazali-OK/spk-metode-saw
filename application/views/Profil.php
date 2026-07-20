@@ -6,7 +6,7 @@ $role = isset($role) ? $role : '';
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Profil Saya</h3>
-        <p class="text-subtitle text-muted">Informasi akun dan ubah password</p>
+        <p class="text-subtitle text-muted">Informasi akun dan ubah kata sandi</p>
     </div>
 
     <div class="row">
@@ -30,7 +30,7 @@ $role = isset($role) ? $role : '';
                             <td><?= isset($user->role) ? ucfirst($user->role) : '-' ?></td>
                         </tr>
                         <tr>
-                            <th>Dibuat</th> <!-- Bug tag penutup </th> yang hilang sudah diperbaiki di sini -->
+                            <th>Tanggal Dibuat</th> <!-- Bug tag penutup </th> yang hilang sudah diperbaiki di sini -->
                             <td><?= isset($user->created_at) ? date('d M Y', strtotime($user->created_at)) : '-' ?></td>
                         </tr>
                     </table>
@@ -41,7 +41,7 @@ $role = isset($role) ? $role : '';
         <div class="col-12 col-lg-6">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-transparent">
-                    <h4 class="card-title mb-0">Ubah Password</h4>
+                    <h4 class="card-title mb-0">Ubah Kata Sandi</h4>
                 </div>
                 <div class="card-body">
                     <?php if (isset($this->session) && $this->session->flashdata('success')): ?>
@@ -53,18 +53,18 @@ $role = isset($role) ? $role : '';
 
                     <form action="<?= base_url($role == 'admin' ? 'admin/profil_update' : 'user/profil_update') ?>" method="post">
                         <div class="mb-3">
-                            <label class="form-label">Password Lama</label>
+                            <label class="form-label">Kata Sandi Lama</label>
                             <input type="password" name="old_password" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Password Baru</label>
+                            <label class="form-label">Kata Sandi Baru</label>
                             <input type="password" name="new_password" class="form-control" required minlength="4">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Konfirmasi Password Baru</label>
+                            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
                             <input type="password" name="confirm_password" class="form-control" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Update Password</button>
+                        <button type="submit" class="btn btn-primary">Perbarui Kata Sandi</button>
                     </form>
                 </div>
             </div>

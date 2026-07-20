@@ -20,6 +20,7 @@ $title = $title ?? 'SPK SAW';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?> | <?= ucfirst($role) ?> Panel</title>
 
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app-dark.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/extensions/apexcharts/apexcharts.css') ?>">

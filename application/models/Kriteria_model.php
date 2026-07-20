@@ -4,7 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Kriteria_model extends CI_Model
 {
     protected $table = 'kriteria';
-    
+
     public function get_all()
     {
         $this->db->order_by('LENGTH(kode)', 'ASC');
@@ -43,5 +43,30 @@ class Kriteria_model extends CI_Model
     public function delete($id)
     {
         return $this->db->delete($this->table, ['id' => $id]);
+    }
+
+    // --- Tambahan validasi duplikat ---
+    public function get_by_kode($kode)
+    {
+        return $this->db->get_where($this->table, ['kode' => $kode])->row();
+    }
+
+    public function get_by_kode_except_id($kode, $id)
+    {
+        $this->db->where('kode', $kode);
+        $this->db->where('id !=', $id);
+        return $this->db->get($this->table)->row();
+    }
+
+    public function get_by_nama($nama)
+    {
+        return $this->db->get_where($this->table, ['nama' => $nama])->row();
+    }
+
+    public function get_by_nama_except_id($nama, $id)
+    {
+        $this->db->where('nama', $nama);
+        $this->db->where('id !=', $id);
+        return $this->db->get($this->table)->row();
     }
 }

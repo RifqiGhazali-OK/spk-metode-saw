@@ -251,7 +251,7 @@ class Saw extends CI_Controller
         $kriteria_id   = (int)$this->input->post('kriteria_id');
         $periode_id    = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
 
-        // Konversi format angka jika ada koma
+        // Konversi format angka 
         $nilai_input = str_replace(',', '.', $this->input->post('nilai'));
         $nilai       = (float)$nilai_input;
         if (!$alternatif_id || !$kriteria_id || $nilai <= 0) {

@@ -2,6 +2,7 @@
 <html lang="id">
 
 <head>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOGIN - Sistem Pendukung Keputusan Metode SAW</title>

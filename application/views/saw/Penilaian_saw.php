@@ -18,7 +18,7 @@
     <div class="page-title mb-4">
         <h3>Penilaian & Proses SAW</h3>
         <p class="text-subtitle text-muted">
-            Input nilai alternatif dan lakukan proses perhitungan SAW.
+            Masukkan nilai alternatif untuk diproses menggunakan metode SAW.
         </p>
     </div>
 <?php endif; ?>
@@ -89,7 +89,7 @@
                                         </div>
                                         <h5 class="text-dark fw-bold mb-1">Data Tidak Ditemukan</h5>
                                         <p class="text-muted mb-0">Belum ada data alternatif untuk periode <strong><?= htmlspecialchars($periode_id_selected) ?></strong>.</p>
-                                        <small class="text-muted mt-2">Silakan <a href="<?= base_url('admin/alternatif?periode_id=' . $periode_id_selected) ?>" class="text-decoration-none fw-bold">Input Data</a> terlebih dahulu.</small>
+                                        <small class="text-muted mt-2">Silakan <a href="<?= base_url('admin/alternatif?periode_id=' . $periode_id_selected) ?>" class="text-decoration-none fw-bold">Masukkan Data</a> terlebih dahulu.</small>
                                     </div>
                                 </td>
                             </tr>
@@ -194,15 +194,19 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             <?php endforeach; ?>
             <div class="text-center" style="margin-top: -22px;">
+                <a href="<?= base_url('saw/penilaian?periode_id=' . $periode_id_selected . '&force_edit=1') ?>" class="btn btn-secondary">
+                    Edit Nilai
+                </a>
                 <form action="<?= base_url('saw/simpan_hasil') ?>" method="post" class="d-inline">
                     <input type="hidden" name="final" value='<?= json_encode($saw['final']) ?>'>
                     <input type="hidden" name="periode_id" value="<?= $periode_id_selected ?>">
-                    <button type="submit" class="btn btn-success">Lihat Ranking</button>
+                    <button type="submit" class="btn btn-success ms-2">
+                        Lihat Ranking
+                    </button>
                 </form>
-                <a href="<?= base_url('saw/penilaian?periode_id=' . $periode_id_selected . '&force_edit=1') ?>" class="btn btn-secondary ms-2">Input Ulang / Edit Nilai</a>
             </div>
         </div>
     </div>
