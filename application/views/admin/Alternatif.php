@@ -17,7 +17,7 @@ foreach ($periode_list as $p) {
     <div class="page-title">
         <div class="row mb-3">
             <div class="col-12">
-                <h3>Data Alternatif</h3>
+                <h3>Data Karyawan</h3>
                 <p class="text-subtitle text-muted">Kelola data karyawan yang akan dinilai berdasarkan periode.</p>
             </div>
         </div>
@@ -39,13 +39,20 @@ foreach ($periode_list as $p) {
             </div>
 
             <div class="col-md-8 col-lg-9 mt-3 mt-md-0">
-                <div class="d-flex justify-content-md-end gap-2">
-                    <button type="button" class="btn btn-outline-danger btn-sm px-3 fw-bold" id="btnHapusMassal">
-                        Hapus Terpilih
+                <div class="d-flex justify-content-md-end gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAlternatif">
+                        <i class="bi bi-plus-lg me-1"></i>Tambah Alternatif
                     </button>
 
-                    <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalAlternatif">
-                        Tambah Alternatif
+                <button type="button"
+                    class="btn btn-success btn-sm px-3 fw-bold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalImport">
+                <i class="bi bi-upload me-1"></i>Upload Data
+                </button>
+
+                    <button type="button" class="btn btn-outline-danger btn-sm px-3 fw-bold" id="btnHapusMassal">
+                        <i class="bi bi-trash me-1"></i>Hapus Terpilih
                     </button>
                 </div>
             </div>
@@ -66,8 +73,8 @@ foreach ($periode_list as $p) {
                                     </div>
                                 </th>
                                 <th width="10%">Kode</th>
-                                <th width="25%">Nama Karyawan</th>
-                                <th width="20%">Jabatan</th>
+                                <th width="20%">Nama Karyawan</th>
+                                <th width="25%">Jabatan</th>
                                 <th width="20%">Periode</th>
                                 <th class="text-center" width="20%">Aksi</th>
                             </tr>
@@ -175,17 +182,102 @@ foreach ($periode_list as $p) {
         </div>
     </div>
 <?php endforeach; ?>
+
+<!-- ================= Upload Data ================= -->
+<div class="modal fade" id="modalImport" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-success fw-bold">
+                    Upload Data Karyawan
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <form action="<?= base_url('admin/alternatif_upload') ?>"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <div class="modal-body py-3">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold mb-1">
+                            Filter Periode
+                        </label>
+
+                        <select class="form-select border-secondary"
+                                name="periode_id"
+                                required>
+
+                            <option value="">Pilih Periode...</option>
+
+                            <?php foreach ($periode_list as $p): ?>
+                                <option value="<?= $p['id'] ?>"
+                                    <?= ($periode_selected == $p['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['nama']) ?>
+                                </option>
+                            <?php endforeach; ?>
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <label class="form-label fw-semibold mb-1">
+                            File Excel
+                        </label>
+
+                        <input type="file"
+                               class="form-control border-secondary"
+                               name="file_excel"
+                               accept=".xlsx,.xls"
+                               required>
+
+                        <small class="text-muted d-block mt-2">
+                            Format file harus<strong> (.xlsx atau .xls)</strong>
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer py-2">
+
+                    <button type="button"
+                            class="btn btn-light-secondary fw-bold px-4"
+                            data-bs-dismiss="modal">
+                        Batal
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-success fw-bold px-4">
+                        Upload
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        // =====================
-        // SWEETALERT CONFIG
-        // =====================
+        // SWEETALERT CONFIG //
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 1200,
+            timer: 2000,
             timerProgressBar: true,
             customClass: {
                 popup: 'shadow-sm border-0'
@@ -274,6 +366,28 @@ foreach ($periode_list as $p) {
                 document.querySelectorAll('.checkbox-item').forEach(cb => cb.checked = e.target.checked);
             });
         }
+
+        // --- Validasi Nama Sebelum Submit ---
+        function validasiNamaForm(form) {
+            const inputNama = form.querySelector('input[name="nama"]');
+            if (inputNama && !/^[A-Za-z\s]+$/.test(inputNama.value.trim())) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Nama tidak boleh mengandung angka atau simbol'
+                });
+                inputNama.focus();
+                return false;
+            }
+            return true;
+        }
+
+        document.querySelectorAll('#modalAlternatif form, #modalAlternatifEdit form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                if (!validasiNamaForm(form)) {
+                    e.preventDefault(); // tidak simpan data submit kalau nama masih ada angka
+                }
+            });
+        });
 
         // --- Modal Edit Logic ---
         const modalEdit = document.getElementById('modalAlternatifEdit');

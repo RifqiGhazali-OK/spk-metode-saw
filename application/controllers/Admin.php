@@ -85,7 +85,7 @@ class Admin extends CI_Controller
 
     public function dashboard()
     {
-        $semua_hasil = $this->Hasil_model->get_ranking();
+        $semua_hasil = $this->Hasil_model->get_ranking(null);
         $hasil_ranking = $this->Hasil_model->get_ranking(10);
 
         $bar_labels = [];
@@ -165,9 +165,7 @@ class Admin extends CI_Controller
         $this->load->view('layout/template', $data);
     }
 
-    // ============================================
-    // KRITERIA
-    // ============================================
+    // KRITERIA //
     public function kriteria()
     {
         $data = [
@@ -288,9 +286,7 @@ class Admin extends CI_Controller
         redirect('admin/kriteria');
     }
 
-    // ============================================
-    // ALTERNATIF
-    // ============================================
+    // ALTERNATIF //
     public function alternatif()
     {
         $periode_id = $this->input->get('periode_id');
@@ -321,16 +317,29 @@ class Admin extends CI_Controller
         $periode_id = $this->input->post('periode_id');
         $kode = $this->input->post('kode');
         $nama = $this->input->post('nama');
+        $jabatan = $this->input->post('jabatan');
 
-        $existing_kode = $this->Alternatif_model->get_by_kode_and_periode($kode, $periode_id);
+        // Kode = identitas tetap karyawan -> harus unik secara GLOBAL, bukan per periode
+        $existing_kode = $this->Alternatif_model->get_by_kode($kode);
         if ($existing_kode) {
-            $this->session->set_flashdata('error', 'Kode alternatif sudah digunakan pada periode ini.');
-            redirect('admin/alternatif');
+            if (strcasecmp(trim($existing_kode->nama), trim($nama)) !== 0) {
+                // Kode sudah dipakai tapi oleh nama yang BEDA -> jelas salah input, tolak
+                $this->session->set_flashdata('error', "Kode \"{$kode}\" sudah terdaftar atas nama \"{$existing_kode->nama}\". Gunakan kode lain untuk karyawan berbeda.");
+                redirect('admin/alternatif');
+            }
+
+            // Kode sudah ada & namanya sama -> kemungkinan besar karyawan yang sama,
+            // tapi tetap harus dicegah kalau dia sudah punya baris di periode yang SAMA
+            $existing_di_periode_ini = $this->Alternatif_model->get_by_kode_and_periode($kode, $periode_id);
+            if ($existing_di_periode_ini) {
+                $this->session->set_flashdata('error', "Karyawan dengan kode \"{$kode}\" sudah dinilai pada periode ini.");
+                redirect('admin/alternatif');
+            }
         }
 
-        $existing_nama = $this->Alternatif_model->get_by_nama_and_periode($nama, $periode_id);
+        $existing_nama = $this->Alternatif_model->get_by_nama_jabatan_periode($nama, $jabatan, $periode_id);
         if ($existing_nama) {
-            $this->session->set_flashdata('error', 'Nama alternatif sudah digunakan pada periode ini.');
+            $this->session->set_flashdata('error', 'Nama dan jabatan alternatif sudah digunakan pada periode ini.');
             redirect('admin/alternatif');
         }
 
@@ -339,10 +348,10 @@ class Admin extends CI_Controller
             'user_id'    => 1,
             'kode'       => $kode,
             'nama'       => $nama,
-            'jabatan'    => $this->input->post('jabatan')
+            'jabatan'    => $jabatan
         ]);
 
-        $this->session->set_flashdata('success', 'Alternatif berhasil ditambahkan.');
+        $this->session->set_flashdata('success', 'Data karyawan berhasil ditambahkan.');
         redirect('admin/alternatif');
     }
 
@@ -361,16 +370,26 @@ class Admin extends CI_Controller
         $periode_id = $this->input->post('periode_id');
         $kode = $this->input->post('kode');
         $nama = $this->input->post('nama');
+        $jabatan = $this->input->post('jabatan');
 
-        $existing_kode = $this->Alternatif_model->get_by_kode_and_periode_except_id($kode, $periode_id, $id);
+        // Kode = identitas tetap karyawan -> harus unik secara GLOBAL (kecuali baris ini sendiri)
+        $existing_kode = $this->Alternatif_model->get_by_kode_except_id($kode, $id);
         if ($existing_kode) {
-            $this->session->set_flashdata('error', 'Kode alternatif sudah digunakan pada periode ini.');
-            redirect('admin/alternatif');
+            if (strcasecmp(trim($existing_kode->nama), trim($nama)) !== 0) {
+                $this->session->set_flashdata('error', "Kode \"{$kode}\" sudah terdaftar atas nama \"{$existing_kode->nama}\". Gunakan kode lain untuk karyawan berbeda.");
+                redirect('admin/alternatif');
+            }
+
+            $existing_di_periode_ini = $this->Alternatif_model->get_by_kode_and_periode_except_id($kode, $periode_id, $id);
+            if ($existing_di_periode_ini) {
+                $this->session->set_flashdata('error', "Karyawan dengan kode \"{$kode}\" sudah dinilai pada periode ini.");
+                redirect('admin/alternatif');
+            }
         }
 
-        $existing_nama = $this->Alternatif_model->get_by_nama_and_periode_except_id($nama, $periode_id, $id);
+        $existing_nama = $this->Alternatif_model->get_by_nama_jabatan_periode_except_id($nama, $jabatan, $periode_id, $id);
         if ($existing_nama) {
-            $this->session->set_flashdata('error', 'Nama alternatif sudah digunakan pada periode ini.');
+            $this->session->set_flashdata('error', 'Nama dan jabatan alternatif sudah digunakan pada periode ini.');
             redirect('admin/alternatif');
         }
 
@@ -378,17 +397,17 @@ class Admin extends CI_Controller
             'periode_id' => $periode_id,
             'kode'       => $kode,
             'nama'       => $nama,
-            'jabatan'    => $this->input->post('jabatan')
+            'jabatan'    => $jabatan
         ]);
 
-        $this->session->set_flashdata('success', 'Alternatif berhasil diperbarui.');
+        $this->session->set_flashdata('success', 'Data karyawan berhasil diperbarui.');
         redirect('admin/alternatif');
     }
 
     public function alternatif_delete(int $id)
     {
         $this->Alternatif_model->delete($id);
-        $this->session->set_flashdata('success', 'Alternatif berhasil dihapus.');
+        $this->session->set_flashdata('success', 'Data karyawan berhasil dihapus.');
         redirect('admin/alternatif');
     }
 
@@ -398,10 +417,162 @@ class Admin extends CI_Controller
         if (!empty($ids)) {
             $this->db->where_in('id', $ids);
             $this->db->delete('alternatif');
-            $this->session->set_flashdata('success', count($ids) . ' data alternatif berhasil dihapus.');
+            $this->session->set_flashdata('success', count($ids) . 'data karyawan berhasil dihapus.');
         } else {
             $this->session->set_flashdata('error', 'Tidak ada data yang dipilih.');
         }
         redirect('admin/alternatif');
+    }
+
+    // ALTERNATIF - Upload file excel //
+    public function alternatif_upload()
+    {
+        $periode_id = $this->input->post('periode_id');
+
+        if (empty($periode_id)) {
+            $this->session->set_flashdata('error', '"Pilih periode terlebih dahulu sebelum upload.".');
+            redirect('admin/alternatif');
+        }
+
+        if (empty($_FILES['file_excel']['name'])) {
+            $this->session->set_flashdata('error', 'Silakan pilih file Excel untuk diupload.');
+            redirect('admin/alternatif?periode_id=' . $periode_id);
+        }
+
+        $file = $_FILES['file_excel'];
+        $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($ext, ['xlsx', 'xls'])) {
+            $this->session->set_flashdata('error', 'Format file harus .xlsx atau .xls.');
+            redirect('admin/alternatif?periode_id=' . $periode_id);
+        }
+
+        require_once APPPATH . '../vendor/autoload.php';
+
+        try {
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file['tmp_name']);
+            $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+        } catch (\Exception $e) {
+            $this->session->set_flashdata('error', 'Gagal membaca file Excel. Pastikan format sesuai.');
+            redirect('admin/alternatif?periode_id=' . $periode_id);
+        }
+
+        $inserted          = 0;
+        $skipped_duplicate = 0;
+        $skipped_empty     = 0;
+        $errors            = [];
+
+        // Cari baris header untuk upload excel secara otomatis
+        $headerRow = -1;
+
+        foreach ($rows as $index => $row) {
+            foreach ($row as $cell) {
+                $cell = strtolower(trim((string)$cell));
+
+                if (
+                    strpos($cell, 'nama') !== false ||
+                    strpos($cell, 'karyawan') !== false
+                ) {
+                    $headerRow = $index;
+                    break 2;
+                }
+            }
+        }
+
+        if ($headerRow == -1) {
+            $this->session->set_flashdata(
+                'error',
+                'Header Excel tidak ditemukan.'
+            );
+            redirect('admin/alternatif?periode_id=' . $periode_id);
+        }
+
+        $header = array_map('trim', $rows[$headerRow]);
+
+        $colNama = null;
+        $colJabatan = null;
+
+        foreach ($header as $idx => $value) {
+            $value = strtolower(trim($value));
+
+            if (
+                $colNama === null &&
+                (
+                    strpos($value, 'nama') !== false ||
+                    strpos($value, 'karyawan') !== false
+                )
+            ) {
+                $colNama = $idx;
+            }
+
+            if (
+                $colJabatan === null &&
+                (
+                    strpos($value, 'jabatan') !== false ||
+                    strpos($value, 'departemen') !== false
+                )
+            ) {
+                $colJabatan = $idx;
+            }
+        }
+
+        if ($colNama === null) {
+            $this->session->set_flashdata(
+                'error',
+                'Kolom Nama tidak ditemukan.'
+            );
+            redirect('admin/alternatif?periode_id=' . $periode_id);
+        }
+
+        foreach ($rows as $i => $row) {
+            if ($i <= $headerRow) {
+                continue;
+            }
+
+            $nama = isset($row[$colNama]) ? trim($row[$colNama]) : '';
+
+            $jabatan = '';
+
+            if ($colJabatan !== null) {
+                $jabatan = trim($row[$colJabatan]);
+            }
+
+            if (empty($nama)) {
+                $skipped_empty++;
+                continue;
+            }
+
+            if (!preg_match("/^[A-Za-z.,'\\-\\s]+$/", $nama)) {
+                $errors[] = 'Baris '.($i+1).': Nama "'.$nama.'" mengandung angka tidak diperbolehkan.';
+                continue;
+            }
+
+            if ($this->Alternatif_model->get_by_nama_jabatan_periode($nama, $jabatan, $periode_id)) {
+                $skipped_duplicate++;
+                continue;
+            }
+
+            $kode = 'A'.$this->Alternatif_model->get_next_kode_number();
+
+            $this->Alternatif_model->insert([
+                'periode_id' => $periode_id,
+                'user_id'    => 1,
+                'kode'       => $kode,
+                'nama'       => $nama,
+                'jabatan'    => $jabatan,
+            ]);
+
+            $inserted++;
+        }
+
+        $summary = "{$inserted} data karyawan berhasil ditambahkan.";
+        if ($skipped_duplicate > 0) $summary .= " {$skipped_duplicate} dilewati (nama & jabatan sudah ada di periode ini).";
+        if ($skipped_empty > 0)     $summary .= " {$skipped_empty} baris kosong dilewati.";
+
+        if (!empty($errors)) {
+            $this->session->set_flashdata('error', implode('<br>', array_slice($errors, 0, 5)));
+        }
+        $this->session->set_flashdata('success', $summary);
+        redirect('admin/alternatif?periode_id=' . $periode_id);
     }
 }

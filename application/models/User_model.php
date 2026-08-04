@@ -26,14 +26,12 @@ class User_model extends CI_Model
         return $this->db->get_where($this->table, ['email' => $email])->row();
     }
 
-    /**
-     * Method untuk login: cari user berdasarkan email atau username,
+    /* Method untuk login: cari user berdasarkan email atau username,
      * lalu cocokkan password (MD5)
-     *
      * @param string $identity email atau username
      * @param string $password password plain text
-     * @return object|null
-     */
+     * @return object|<null></null*/
+
     public function login($identity, $password)
     {
         $this->db->where('email', $identity);

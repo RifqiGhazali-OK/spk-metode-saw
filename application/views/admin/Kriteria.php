@@ -24,24 +24,14 @@ $total_persen   = number_format($total_bobot * 100, 0);
         </div>
     </div>
 
-    <section class="section">
-        <div class="row mb-3">
-            <div class="col-12 text-end">
-                <button type="button" class="btn btn-primary btn-sm px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalKriteria">
-                    Tambah Kriteria
-                </button>
-            </div>
+ <section class="section">
+    <div class="row mb-3">
+        <div class="col-12 text-end">
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#modalKriteria">
+                <i class="bi bi-plus-lg me-1"></i>Tambah Kriteria
+            </button>
         </div>
-
-        <?php if ($this->session->flashdata('error')): ?>
-            <div class="alert alert-light-danger color-danger alert-dismissible show fade d-flex align-items-center shadow-sm mb-4">
-                <i class="bi bi-x-circle-fill fs-5 me-3 lh-1 d-flex align-items-center"></i>
-                <div class="flex-grow-1">
-                    <?= $this->session->flashdata('error') ?>
-                </div>
-                <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close" style="align-self: center;"></button>
-            </div>
-        <?php endif; ?>
+    </div>
 
         <?php if (!$is_bobot_valid): ?>
             <div class="alert alert-light-warning color-warning alert-dismissible show fade d-flex align-items-center shadow-sm mb-4">
@@ -189,7 +179,7 @@ $total_persen   = number_format($total_bobot * 100, 0);
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 1200,
+            timer: 2000,
             timerProgressBar: true,
             customClass: {
                 popup: 'shadow-sm border-0'
@@ -209,6 +199,13 @@ $total_persen   = number_format($total_bobot * 100, 0);
             Toast.fire({
                 icon: 'success',
                 title: '<?= addslashes($this->session->flashdata('success')) ?>'
+            });
+        <?php endif; ?>
+
+        <?php if ($this->session->flashdata('error')): ?>
+            Toast.fire({
+                icon: 'error',
+                title: '<?= addslashes($this->session->flashdata('error')) ?>'
             });
         <?php endif; ?>
 
@@ -234,6 +231,28 @@ $total_persen   = number_format($total_bobot * 100, 0);
                 });
             });
         });
+
+        // --- Validasi Nama Sebelum Submit ---
+function validasiNamaForm(form) {
+    const inputNama = form.querySelector('input[name="nama"]');
+    if (inputNama && !/^[A-Za-z\s]+$/.test(inputNama.value.trim())) {
+        Toast.fire({
+            icon: 'error',
+            title: 'Nama tidak boleh mengandung angka atau simbol'
+        });
+        inputNama.focus();
+        return false;
+    }
+    return true;
+}
+
+document.querySelectorAll('#modalKriteria form, #modalKriteriaEdit form').forEach(form => {
+    form.addEventListener('submit', (e) => {
+        if (!validasiNamaForm(form)) {
+            e.preventDefault(); // tidak simpan data submit kalau nama masih ada angka
+        }
+    });
+});
 
         const modalEdit = document.getElementById('modalKriteriaEdit');
         if (modalEdit) {

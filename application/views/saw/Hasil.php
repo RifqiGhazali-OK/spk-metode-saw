@@ -8,7 +8,7 @@ $hasil = isset($hasil) ? $hasil : array();
 <div class="page-heading">
     <div class="page-title mb-4">
         <h3>Hasil Perhitungan SAW</h3>
-        <p class="text-subtitle text-muted">Ranking alternatif berdasarkan nilai akhir</p>
+        <p class="text-subtitle text-muted">Ranking Karyawan berdasarkan nilai akhir</p>
     </div>
 
     <!-- Periode & Tombol Export -->
@@ -43,7 +43,7 @@ $hasil = isset($hasil) ? $hasil : array();
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-transparent">
-                    <h4 class="card-title mb-0">Ranking Alternatif</h4>
+                    <h4 class="card-title mb-0">Ranking Karyawan</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

@@ -14,8 +14,7 @@ class Auth extends CI_Controller
     public function index()
     {
         if ($this->session->userdata('logged_in')) {
-            // Semua user langsung ke dashboard admin (single user)
-            redirect('admin/dashboard');
+            $this->redirect_by_role($this->session->userdata('role'));
         }
         $this->load->view('auth/login');
     }
@@ -28,17 +27,17 @@ class Auth extends CI_Controller
         $user = $this->User_model->login($identity, $password);
 
         if ($user) {
-            // Paksa role admin, karena kita akan menggunakan single user (manager)
             $ses_data = array(
                 'id'        => $user->id,
                 'nama'      => $user->full_name ?? $user->username ?? $user->email,
                 'username'  => $user->username,
                 'email'     => $user->email,
-                'role'      => 'admin',   // pastikan role admin
+                'role'      => $user->role,   // pakai role asli dari database, bukan dipaksa admin
                 'logged_in' => TRUE
             );
             $this->session->set_userdata($ses_data);
-            redirect('admin/dashboard');
+
+            $this->redirect_by_role($user->role);
         } else {
             $this->session->set_flashdata('error', 'Email/Username atau password salah.');
             redirect('auth');
@@ -49,5 +48,17 @@ class Auth extends CI_Controller
     {
         $this->session->sess_destroy();
         redirect('auth');
+    }
+
+     /* Arahkan user ke dashboard sesuai role.
+     * admin  -> dashboard pengelolaan penuh (input data, kelola master, dsb)
+     * user   -> dashboard read-only (Manajer/Direktur Operasional) + approval periode*/
+    private function redirect_by_role($role)
+    {
+        if ($role === 'admin') {
+            redirect('admin/dashboard');
+        } else {
+            redirect('user/dashboard');
+        }
     }
 }

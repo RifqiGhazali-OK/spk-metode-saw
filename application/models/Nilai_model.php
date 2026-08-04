@@ -15,18 +15,15 @@ class Nilai_model extends CI_Model
         return $this->db->get($this->table)->result_array();
     }
 
-    /**
-     * Insert nilai baru
-     */
+    
+     /*Insert nilai baru*/
     public function insert_nilai($data)
     {
         return $this->db->insert($this->table, $data);
     }
 
-    /**
-     * Hapus nilai berdasarkan kombinasi unik
-     * Digunakan sebelum insert agar tidak ada duplikat
-     */
+    /*Hapus nilai berdasarkan kombinasi unik
+     *Digunakan sebelum insert agar tidak ada duplikat*/
     public function delete_nilai($user_id, $alternatif_id, $kriteria_id, $periode_id)
     {
         $this->db->where('user_id', $user_id);
@@ -36,9 +33,7 @@ class Nilai_model extends CI_Model
         return $this->db->delete($this->table);
     }
 
-    /**
-     * Hitung jumlah penilaian untuk user dan periode tertentu
-     */
+    /*Hitung jumlah penilaian untuk user dan periode tertentu*/
     public function count_by_user_and_periode($user_id, $periode_id)
     {
         $this->db->where('user_id', $user_id);
@@ -46,9 +41,7 @@ class Nilai_model extends CI_Model
         return $this->db->count_all_results($this->table);
     }
 
-    /**
-     * Hapus semua penilaian untuk user dan periode
-     */
+    /*Hapus semua penilaian untuk user dan periode*/
     public function delete_by_user_and_periode($user_id, $periode_id)
     {
         $this->db->where('user_id', $user_id);

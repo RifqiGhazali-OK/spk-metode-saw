@@ -45,7 +45,7 @@ class Kriteria_model extends CI_Model
         return $this->db->delete($this->table, ['id' => $id]);
     }
 
-    // --- Tambahan validasi duplikat ---
+    //Validasi duplikat data//
     public function get_by_kode($kode)
     {
         return $this->db->get_where($this->table, ['kode' => $kode])->row();

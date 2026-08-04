@@ -1,9 +1,9 @@
 <?php
 // Setup untuk menghindari error 'undefined variable'
-$nama_user        = $nama_user ?? 'Admin';
-$total_kriteria   = $total_kriteria ?? 0;
-$total_alternatif = $total_alternatif ?? 0;
-$total_hasil      = $total_hasil ?? 0;
+$nama_user       = $nama_user ?? 'Manajer/Direktur';
+$total_hasil     = $total_hasil ?? 0;
+$total_periode   = $total_periode ?? 0;
+$total_pending   = $total_pending ?? 0;
 ?>
 
 <!-- Header Dashboard -->
@@ -11,8 +11,13 @@ $total_hasil      = $total_hasil ?? 0;
     <div class="page-title">
         <div class="row align-items-center">
             <div class="col-12 col-md-6">
-                <h3 class="mb-1">Dashboard Admin</h3>
+                <h3 class="mb-1">Dashboard User</h3>
                 <p class="text-subtitle text-muted mb-0">Selamat datang kembali, <strong><?= htmlspecialchars($nama_user) ?></strong>!</p>
+            </div>
+            <div class="col-12 col-md-6 text-md-end">
+                <a href="<?= base_url('user/periode') ?>" class="btn btn-primary btn-sm">
+                    <i class="bi bi-list-check"></i> Lihat Periode Peniliaan
+                </a>
             </div>
         </div>
     </div>
@@ -25,25 +30,11 @@ $total_hasil      = $total_hasil ?? 0;
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body py-2 px-3 d-flex align-items-center">
                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                        <i class="bi bi-clipboard-check-fill"></i>
+                        <i class="bi bi-calendar3"></i>
                     </div>
                     <div>
-                        <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Kriteria</p>
-                        <h4 class="fw-bolder mb-0 text-dark"><?= $total_kriteria ?></h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body py-2 px-3 d-flex align-items-center">
-                    <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <div>
-                        <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Karyawan</p>
-                        <h4 class="fw-bolder mb-0 text-dark"><?= $total_alternatif ?></h4>
+                        <p class="text-muted mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Periode</p>
+                        <h4 class="fw-bolder mb-0 text-dark"><?= $total_periode ?></h4>
                     </div>
                 </div>
             </div>
@@ -64,9 +55,8 @@ $total_hasil      = $total_hasil ?? 0;
         </div>
     </div>
 
-    <!-- Row: Tampilan Grafik Utama -->
+    <!-- Row: Tampilan Grafik Utama (read-only, sama seperti admin) -->
     <div class="row">
-        <!-- Kolom Chart Doughnut -->
         <div class="col-12 col-xl-4 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-transparent border-bottom-0 pb-0 pt-4 text-center">
@@ -81,7 +71,6 @@ $total_hasil      = $total_hasil ?? 0;
             </div>
         </div>
 
-        <!-- Kolom Chart Bar (Ranking) -->
         <div class="col-12 col-xl-8 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center pb-3">
@@ -100,13 +89,11 @@ $total_hasil      = $total_hasil ?? 0;
 <!-- Library Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Elemen penampung untuk custom tooltip Doughnut -->
 <div id="chartTooltip" style="position:absolute; pointer-events:none; display:none; z-index:999;"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        // Parsing data dari controller PHP ke array JavaScript
         const labelsArr = <?= $chart_labels ?? '[]' ?>;
         const totalArr = <?= $chart_data ?? '[]' ?>;
         const layakArr = <?= $chart_layak ?? '[]' ?>;
@@ -127,14 +114,11 @@ $total_hasil      = $total_hasil ?? 0;
 
         const palette = labelsArr.map((_, i) => {
             if (i < paletteDasar.length) {
-                return paletteDasar[i];   // pakai warna dasar untuk 7 departemen pertama
+                return paletteDasar[i];
             }
-            return generateColor(i, labelsArr.length); // baru generate jika lebih dari 7
+            return generateColor(i, labelsArr.length);
         });
 
-        /* -------------------------------------------------------------
-         * Inisialisasi Doughnut Chart (Status Departemen)
-         * ------------------------------------------------------------- */
         const ctxDoughnut = document.getElementById('deptStatusChart').getContext('2d');
 
         new Chart(ctxDoughnut, {
@@ -152,23 +136,12 @@ $total_hasil      = $total_hasil ?? 0;
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '72%',
-                layout: {
-                    padding: {
-                        bottom: 10
-                    }
-                },
+                layout: { padding: { bottom: 10 } },
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 16,
-                            font: {
-                                size: 11
-                            }
-                        }
+                        labels: { boxWidth: 12, padding: 16, font: { size: 11 } }
                     },
-                    // Mengganti tooltip bawaan dengan elemen HTML terpisah
                     tooltip: {
                         enabled: false,
                         external: function(context) {
@@ -186,7 +159,6 @@ $total_hasil      = $total_hasil ?? 0;
                             const tunda = tundaArr[idx];
                             const color = palette[idx % palette.length];
 
-                            // Styling inline untuk menjaga komponen tetap ringkas
                             tooltipEl.innerHTML = `
                                 <div style="background: rgba(33,37,41,0.95); color: #fff; padding: 12px 16px; border-radius: 8px; font-family: sans-serif; font-size: 13px; min-width: 210px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
                                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
@@ -211,20 +183,14 @@ $total_hasil      = $total_hasil ?? 0;
                 }
             },
             plugins: [{
-                // Custom plugin untuk merender teks di titik pusat canvas
                 id: 'centerText',
                 beforeDraw: function(chart) {
-                    const {
-                        width,
-                        height,
-                        ctx
-                    } = chart;
+                    const { width, height, ctx } = chart;
                     ctx.restore();
 
                     const meta = chart.getDatasetMeta(0);
                     if (!meta || !meta.data || meta.data.length === 0) return;
 
-                    // Koordinat tengah dinamis berdasarkan render meta data donat
                     const centerX = meta.data[0].x;
                     const centerY = meta.data[0].y;
 
@@ -245,13 +211,8 @@ $total_hasil      = $total_hasil ?? 0;
             }]
         });
 
-        /* -------------------------------------------------------------
-         * Inisialisasi Bar Chart (Ranking Alternatif)
-         * ------------------------------------------------------------- */
         const canvasBar = document.getElementById('rankingBarChart');
         if (canvasBar && barLabelsArr.length > 0) {
-
-            // Pewarnaan dinamis berdasarkan status kelayakan
             const barColors = barStatusArr.map(status => status === 'Layak' ? '#198754' : '#dc3545');
             const ctxBar = canvasBar.getContext('2d');
 
@@ -271,38 +232,17 @@ $total_hasil      = $total_hasil ?? 0;
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1,
-                            ticks: {
-                                stepSize: 0.2
-                            },
-                            grid: {
-                                borderDash: [5, 5]
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
+                        y: { beginAtZero: true, max: 1, ticks: { stepSize: 0.2 }, grid: { borderDash: [5, 5] } },
+                        x: { grid: { display: false } }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             backgroundColor: 'rgba(33,37,41,0.95)',
                             padding: 14,
                             displayColors: false,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                family: "'Courier New', Courier, monospace",
-                                size: 13
-                            },
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { family: "'Courier New', Courier, monospace", size: 13 },
                             callbacks: {
                                 title: function(items) {
                                     const idx = items[0].dataIndex;
@@ -312,11 +252,8 @@ $total_hasil      = $total_hasil ?? 0;
                                     const idx = context.dataIndex;
                                     const status = barStatusArr[idx] || '-';
                                     const nilai = context.raw.toFixed(3);
-
-                                    // Spasi padEnd untuk menyejajarkan titik dua
                                     const lblStatus = "Status".padEnd(11, ' ');
                                     const lblNilai = "Nilai Akhir".padEnd(11, ' ');
-
                                     return [
                                         `${lblStatus}: ${status}`,
                                         `${lblNilai}: ${nilai}`

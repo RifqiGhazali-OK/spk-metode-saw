@@ -12,26 +12,47 @@
  * @var int $jumlah_penilaian
  * @var int $total_required
  */
+
+$upload_errors  = $this->session->flashdata('upload_errors');
+$flash_success  = $this->session->flashdata('success');
+
+// Kelompokkan error per kategori supaya modal detail lebih mudah dibaca
+$upload_errors_grouped = [];
+$alasan_label = [
+    'tidak_ditemukan' => 'Karyawan tidak ditemukan di periode ini',
+    'ambigu'          => 'Nama ganda / ambigu',
+    'nilai_invalid'   => 'Nilai tidak valid',
+];
+if (!empty($upload_errors)) {
+    foreach ($upload_errors as $err) {
+        $key = $err['alasan'] ?? 'lainnya';
+        $upload_errors_grouped[$key][] = $err;
+    }
+}
 ?>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <?php if (!$show_hasil): ?>
     <div class="page-title mb-4">
         <h3>Penilaian & Proses SAW</h3>
         <p class="text-subtitle text-muted">
-            Masukkan nilai alternatif untuk diproses menggunakan metode SAW.
+            Masukkan nilai karyawan untuk diproses menggunakan metode SAW.
         </p>
     </div>
 <?php endif; ?>
 
-<?php if ($this->session->flashdata('success')): ?>
-    <div class="alert alert-success">
-        <?= $this->session->flashdata('success') ?>
-    </div>
-<?php endif; ?>
-
 <?php if ($this->session->flashdata('error')): ?>
-    <div class="alert alert-danger">
-        <?= $this->session->flashdata('error') ?>
+    <div class="alert alert-light-danger d-flex align-items-center flex-wrap gap-2">
+        <span class="me-auto"><?= $this->session->flashdata('error') ?></span>
+
+        <?php if (!empty($upload_errors)): ?>
+            <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalUploadErrors">
+                Lihat Detail (<?= count($upload_errors) ?>)
+            </button>
+        <?php endif; ?>
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
 
@@ -39,11 +60,11 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-header bg-transparent border-0">
-            <h5 class="mb-0">Matriks Penilaian Alternatif</h5>
+            <h5 class="mb-0">Matriks Penilaian Karyawan</h5>
         </div>
 
         <div class="card-body">
-            <!-- Filter Periode -->
+            <!-- Filter Periode & Aksi -->
             <div class="row mb-3 align-items-end">
                 <div class="col-md-4 col-lg-3">
                     <label class="form-label text-muted fw-semibold mb-1" style="font-size: 0.85rem;">Filter Periode</label>
@@ -54,6 +75,17 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+
+                <div class="col-md-8 col-lg-9 mt-3 mt-md-0">
+                    <div class="d-flex justify-content-md-end gap-2 flex-wrap">
+                        <button type="button"
+                            class="btn btn-success btn-sm px-3 fw-bold"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalImportPenilaian">
+                            <i class="bi bi-upload me-1"></i>Upload Data
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -66,7 +98,7 @@
                     style="min-width: 700px; width: 100%; border-collapse: collapse; font-size: 0.875rem; background-color: #fff; border-color: #dee2e6;">
                     <thead class="table-light">
                         <tr>
-                            <th rowspan="2" style="width: 18%; vertical-align: middle; background-color: #f8f9fa;">Alternatif / Jabatan</th>
+                            <th rowspan="2" style="width: 18%; vertical-align: middle; background-color: #f8f9fa;">Karyawan / Jabatan</th>
                             <th colspan="<?= $jumlah_kriteria ?>" class="text-center" style="background-color: #f8f9fa;">Kriteria & Bobot</th>
                         </tr>
                         <tr>
@@ -212,74 +244,172 @@
     </div>
 <?php endif; ?>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- ================= Modal Upload Data Penilaian ================= -->
+<div class="modal fade" id="modalImportPenilaian" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow">
 
-<!-- Toast Container -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-    <div id="toastBox" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-semibold" id="toastMsg"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            <div class="modal-header">
+                <h5 class="modal-title text-success fw-bold">
+                    Upload Data Penilaian
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="<?= base_url('saw/penilaian_upload') ?>"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <div class="modal-body py-3">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-1">Periode Penilaian</label>
+                        <select class="form-select border-secondary" name="periode_id" id="modal_periode_id" required>
+                            <option value="">Pilih Periode...</option>
+                            <?php foreach ($periode_list as $p): ?>
+                                <option value="<?= $p['id'] ?>" <?= ($periode_id_selected == $p['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['nama']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold mb-1">File Excel</label>
+                        <input type="file"
+                               class="form-control border-secondary"
+                               name="file_excel"
+                               accept=".xlsx,.xls,.csv"
+                               required>
+                        <small class="text-muted d-block mt-2">
+                            Format file harus <strong>(.xlsx atau .xls)</strong>
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-light-secondary fw-bold px-4" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-success fw-bold px-4">
+                        Upload
+                    </button>
+                </div>
+
+            </form>
+
         </div>
     </div>
 </div>
 
+<!-- ================= Modal Detail Error Upload ================= -->
+<?php if (!empty($upload_errors_grouped)): ?>
+<div class="modal fade" id="modalUploadErrors" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Baris yang Dilewati</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <?php foreach ($upload_errors_grouped as $key => $items): ?>
+                    <h6 class="fw-bold mt-3 mb-2">
+                        <?= htmlspecialchars($alasan_label[$key] ?? $key) ?>
+                        <span class="text-muted fw-normal">(<?= count($items) ?>)</span>
+                    </h6>
+                    <ul class="list-group list-group-flush mb-2">
+                        <?php foreach ($items as $err): ?>
+                            <li class="list-group-item small">
+                                Baris <?= (int)$err['baris'] ?>: <?= htmlspecialchars($err['pesan']) ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endforeach; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    function showToast(msg, type = 'danger') {
-        let toast = $('#toastBox');
-        toast.removeClass('text-bg-danger text-bg-warning text-bg-success');
-        toast.addClass('text-bg-' + type);
-        $('#toastMsg').text(msg);
-        new bootstrap.Toast(toast[0], {
-            delay: 3000
-        }).show();
-    }
-
-    $(function() {
-        // Ganti periode
-        $('#periode_id, #periode_id_hasil').change(function() {
-            window.location.href = '<?= base_url("saw/penilaian") ?>?periode_id=' + $(this).val();
+    document.addEventListener('DOMContentLoaded', () => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            customClass: { popup: 'shadow-sm border-0' }
         });
 
-        // Simpan nilai AJAX
-        $('.nilai-input').change(function() {
-            let input = $(this);
-            let nilai = parseFloat(input.val());
+        function showToast(msg, type = 'error') {
+            Toast.fire({ icon: type, title: msg });
+        }
 
-            if (input.val() === '' || isNaN(nilai) || nilai < 0.1 || nilai > 100) {
-                showToast('Nilai harus diisi antara 0.1 sampai 100', 'danger');
-                input.val('');
-                input.focus();
-                return;
-            }
+        <?php if (!empty($flash_success)): ?>
+            Toast.fire({
+                icon: 'success',
+                title: <?= json_encode($flash_success) ?>
+            });
+        <?php endif; ?>
 
-            $.post('<?= base_url("saw/penilaian_save") ?>', {
-                alternatif_id: input.data('alternatif'),
-                kriteria_id: input.data('kriteria'),
-                nilai: nilai,
-                periode_id: $('#periode_id').val()
-            }, function(res) {
-                input.css('border-color', '#198754');
-                setTimeout(() => input.css('border-color', ''), 800);
-            }, 'json');
-        });
+        $(function() {
+            // Ganti periode
+            $('#periode_id, #periode_id_hasil').change(function() {
+                window.location.href = '<?= base_url("saw/penilaian") ?>?periode_id=' + $(this).val();
+            });
 
-        // Validasi sebelum proses SAW
-        $('#formProses').submit(function(e) {
-            let valid = true;
-            $('.nilai-input').each(function() {
-                let nilai = parseFloat($(this).val());
-                if ($(this).val() === '' || isNaN(nilai) || nilai < 0.1 || nilai > 100) {
-                    valid = false;
-                    $(this).css('border-color', '#dc3545').focus();
-                    return false;
+            // Sinkronkan select periode di modal saat filter periode utama berubah
+            $('#periode_id').on('change', function() {
+                $('#modal_periode_id').val($(this).val());
+            });
+
+            // Simpan nilai AJAX
+            $('.nilai-input').change(function() {
+                let input = $(this);
+                let nilai = parseFloat(input.val());
+
+                if (input.val() === '' || isNaN(nilai) || nilai < 0.1 || nilai > 100) {
+                    showToast('Nilai harus diisi antara 0.1 sampai 100', 'error');
+                    input.val('');
+                    input.focus();
+                    return;
+                }
+
+                $.post('<?= base_url("saw/penilaian_save") ?>', {
+                    alternatif_id: input.data('alternatif'),
+                    kriteria_id: input.data('kriteria'),
+                    nilai: nilai,
+                    periode_id: $('#periode_id').val()
+                }, function(res) {
+                    input.css('border-color', '#198754');
+                    setTimeout(() => input.css('border-color', ''), 800);
+                }, 'json');
+            });
+
+            // Validasi sebelum proses SAW
+            $('#formProses').submit(function(e) {
+                let valid = true;
+                $('.nilai-input').each(function() {
+                    let nilai = parseFloat($(this).val());
+                    if ($(this).val() === '' || isNaN(nilai) || nilai < 0.1 || nilai > 100) {
+                        valid = false;
+                        $(this).css('border-color', '#dc3545').focus();
+                        return false;
+                    }
+                });
+                if (!valid) {
+                    e.preventDefault();
+                    showToast('Semua nilai wajib diisi dan harus bernilai 0.1 - 100', 'error');
                 }
             });
-            if (!valid) {
-                e.preventDefault();
-                showToast('Semua nilai wajib diisi dan harus bernilai 0.1 - 100', 'danger');
-            }
         });
     });
 </script>

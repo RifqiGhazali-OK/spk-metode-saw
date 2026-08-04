@@ -1,5 +1,5 @@
 <?php
-$role = 'admin';
+$role = $role ?? $this->session->userdata('role') ?? 'admin';
 $active_menu = $active_menu ?? '';
 
 $nama_user = $nama_user ?? $this->session->userdata('nama');
@@ -11,6 +11,11 @@ if (empty($nama_user)) {
 }
 
 $title = $title ?? 'SPK SAW';
+
+// Label yang tampil di topbar & title, disesuaikan per role
+$label_role = ($role === 'admin') ? 'Admin' : 'User';
+$dashboard_url = ($role === 'admin') ? 'admin/dashboard' : 'user/dashboard';
+$profil_url = ($role === 'admin') ? 'admin/profil' : 'user/profil';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -18,7 +23,7 @@ $title = $title ?? 'SPK SAW';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?> | <?= ucfirst($role) ?> Panel</title>
+    <title><?= $title ?> | <?= $label_role ?> Panel</title>
 
     <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/mazer/dist/assets/compiled/css/app.css') ?>">
@@ -79,7 +84,7 @@ $title = $title ?? 'SPK SAW';
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo w-100">
-                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-brand d-flex flex-column align-items-start" style="line-height: 1.2;">
+                            <a href="<?= base_url($dashboard_url) ?>" class="sidebar-brand d-flex flex-column align-items-start" style="line-height: 1.2;">
                                 <span class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Sistem Pendukung Keputusan</span>
                                 <span class="text-primary mt-1" style="font-size: 1.3rem; font-weight: 800;">Metode SAW</span>
                             </a>
@@ -96,40 +101,50 @@ $title = $title ?? 'SPK SAW';
                     <ul class="menu">
                         <li class="sidebar-title">Menu Utama</li>
                         <li class="sidebar-item <?= ($active_menu == 'dashboard') ? 'active' : '' ?>">
-                            <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-link">
+                            <a href="<?= base_url($dashboard_url) ?>" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
 
-                        <li class="sidebar-title">Master Data</li>
-                        <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
-                            <a href="<?= base_url('admin/kriteria') ?>" class="sidebar-link">
-                                <i class="bi bi-pie-chart-fill"></i>
-                                <span>Kriteria & Bobot</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item <?= ($active_menu == 'alternatif') ? 'active' : '' ?>">
-                            <a href="<?= base_url('admin/alternatif') ?>" class="sidebar-link">
-                                <i class="bi bi-people-fill"></i>
-                                <span>Alternatif</span>
-                            </a>
-                        </li>
+                        <?php if ($role === 'admin'): ?>
+                            <li class="sidebar-title">Master Data</li>
+                            <li class="sidebar-item <?= ($active_menu == 'kriteria') ? 'active' : '' ?>">
+                                <a href="<?= base_url('admin/kriteria') ?>" class="sidebar-link">
+                                    <i class="bi bi-pie-chart-fill"></i>
+                                    <span>Kriteria & Bobot</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item <?= ($active_menu == 'alternatif') ? 'active' : '' ?>">
+                                <a href="<?= base_url('admin/alternatif') ?>" class="sidebar-link">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>Alternatif</span>
+                                </a>
+                            </li>
 
-                        <li class="sidebar-title">SAW</li>
-                        <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
-                            <a href="<?= base_url('saw/penilaian') ?>" class="sidebar-link">
-                                <i class="bi bi-calculator-fill"></i>
-                                <span>Proses Hitung SAW</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-title">SAW</li>
+                            <li class="sidebar-item <?= ($active_menu == 'penilaian') ? 'active' : '' ?>">
+                                <a href="<?= base_url('saw/penilaian') ?>" class="sidebar-link">
+                                    <i class="bi bi-calculator-fill"></i>
+                                    <span>Proses Hitung SAW</span>
+                                </a>
+                            </li>
 
-                        <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
-                            <a href="<?= base_url('saw/hasil') ?>" class="sidebar-link">
-                                <i class="bi bi-bar-chart-line-fill"></i>
-                                <span>Hasil SAW</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-item <?= ($active_menu == 'hasil') ? 'active' : '' ?>">
+                                <a href="<?= base_url('saw/hasil') ?>" class="sidebar-link">
+                                    <i class="bi bi-bar-chart-line-fill"></i>
+                                    <span>Hasil SAW</span>
+                                </a>
+                            </li>
+                        <?php else: ?>
+                            <li class="sidebar-title">Data</li>
+                            <li class="sidebar-item <?= ($active_menu == 'periode') ? 'active' : '' ?>">
+                                <a href="<?= base_url('user/periode') ?>" class="sidebar-link">
+                                    <i class="bi bi-list-check"></i>
+                                    <span>Periode Penilaian</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -151,16 +166,16 @@ $title = $title ?? 'SPK SAW';
                                         </div>
                                         <div class="d-none d-md-block text-end">
                                             <span class="fw-semibold d-block"><?= htmlspecialchars($nama_user) ?></span>
-                                            <small class="text-muted">Admin</small>
+                                            <small class="text-muted"><?= $label_role ?></small>
                                         </div>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                     <li>
-                                        <h6 class="dropdown-header">Admin Panel</h6>
+                                        <h6 class="dropdown-header"><?= $label_role ?> Panel</h6>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="<?= base_url('admin/profil') ?>">
+                                        <a class="dropdown-item" href="<?= base_url($profil_url) ?>">
                                             <i class="bi bi-person me-2"></i> Profil
                                         </a>
                                     </li>
@@ -180,7 +195,6 @@ $title = $title ?? 'SPK SAW';
             </header>
 
             <?php
-            // Inisialisasi variabel untuk menghindari error undefined di Text Editor
             $content = isset($content) ? $content : '';
             ?>
             <div id="main-content">
@@ -204,5 +218,4 @@ $title = $title ?? 'SPK SAW';
     <script src="<?= base_url('assets/mazer/dist/assets/extensions/apexcharts/apexcharts.min.js') ?>"></script>
     <?php if (isset($extra_js)) echo $extra_js; ?>
 </body>
-
 </html>
