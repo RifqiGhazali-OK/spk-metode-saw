@@ -19,7 +19,7 @@ class Saw extends CI_Controller
             'Saw_model'
         ]);
 
-        // Proteksi Halaman (Auth)
+        // Proteksi Halaman (Auth) 
         if (!$this->session->userdata('logged_in') || $this->session->userdata('role') !== 'admin') {
             redirect('auth');
         }
@@ -36,6 +36,8 @@ class Saw extends CI_Controller
     /* ====================================================
      * FUNGSI HELPER
      * ==================================================== */
+
+    // Mengambil nama user aktif untuk ditampilkan pada tampilan sistem
     private function _get_nama_user(): string
     {
         return $this->session->userdata('nama')
@@ -44,6 +46,7 @@ class Saw extends CI_Controller
             ?? 'Administrator';
     }
 
+    // Mengambil periode penilaian yang sedang aktif berdasarkan bulan berjalan
     private function _get_active_periode(): int
     {
         $periode = $this->Periode_model->get_active_by_month();
@@ -67,7 +70,7 @@ class Saw extends CI_Controller
         $nilai_existing = $this->Nilai_model->get_by_user_and_periode($user_id, $periode_id);
         $periode_list   = $this->Periode_model->get_all();
 
-        // Mapping nilai untuk ditampilkan di view
+        // Mapping nilai yang sudah tersimpan untuk ditampilkan pada tabel matriks
         $nilai_map = [];
         foreach ($nilai_existing as $n) {
             $nilai_map[$n['alternatif_id']][$n['kriteria_id']] = $n['nilai'];
@@ -82,10 +85,10 @@ class Saw extends CI_Controller
         $force_edit    = (bool)$this->input->get('force_edit');
         $tombol_proses = (bool)$this->input->post('proses_hitung');
 
-        // Cek apakah hasil sudah pernah disimpan sebelumnya
+        // Cek apakah hasil perhitungan sudah pernah disimpan sebelumnya
         $cek_hasil = $this->Hasil_model->exists($user_id, $periode_id);
 
-        // Setup default nilai awal
+        // Setup nilai default sebelum proses perhitungan dijalankan
         $show_hasil = false;
         $saw = [
             'matrix'     => [],
@@ -97,7 +100,8 @@ class Saw extends CI_Controller
         ];
 
         /* KONDISI TAMPILAN HALAMAN */
-        // Kondisi 1: Hasil sudah tersimpan & lengkap -> Langsung tampil hasil perhitungan
+
+        // Kondisi 1: Hasil sudah tersimpan & lengkap -> langsung tampilkan hasil perhitungan
         if ($cek_hasil && $penilaian_lengkap && !$force_edit && !$tombol_proses) {
             $saw        = $this->Saw_model->calculate_saw($user_id, $periode_id);
             $show_hasil = true;
@@ -115,7 +119,7 @@ class Saw extends CI_Controller
             $saw        = $this->Saw_model->calculate_saw($user_id, $periode_id);
             $show_hasil = true;
         }
-        // Kondisi 3: force_edit=1 atau belum ada hasil sama sekali -> Form input penilaian otomatis tampil
+        // Kondisi 3: force_edit=1 atau belum ada hasil sama sekali -> form input penilaian otomatis tampil
 
         $data = [
             // Page Setup
@@ -161,9 +165,10 @@ class Saw extends CI_Controller
         $kriteria_id   = (int)$this->input->post('kriteria_id');
         $periode_id    = (int)($this->input->post('periode_id') ?: $this->_get_active_periode());
 
-        // Konversi format angka
+        // Konversi format angka (menangani input koma menjadi titik desimal)
         $nilai_input = str_replace(',', '.', $this->input->post('nilai'));
         $nilai       = (float)$nilai_input;
+
         if (!$alternatif_id || !$kriteria_id || $nilai <= 0) {
             echo json_encode([
                 'status'  => 'error',
@@ -172,7 +177,7 @@ class Saw extends CI_Controller
             return;
         }
 
-        // Hapus nilai lama, lalu insert yang baru (replace)
+        // Hapus nilai lama, lalu simpan nilai baru (replace)
         $this->Nilai_model->delete_nilai($user_id, $alternatif_id, $kriteria_id, $periode_id);
         $this->Nilai_model->insert_nilai([
             'user_id'       => $user_id,
@@ -182,7 +187,7 @@ class Saw extends CI_Controller
             'nilai'         => $nilai,
         ]);
 
-        // Cek kembali kelengkapan untuk di-return ke AJAX
+        // Cek kembali kelengkapan data untuk dikembalikan ke proses AJAX
         $alternatif       = $this->Alternatif_model->get_all_by_periode($periode_id);
         $kriteria         = $this->Kriteria_model->get_all();
         $total_required   = count($alternatif) * count($kriteria);
@@ -211,7 +216,7 @@ class Saw extends CI_Controller
             return;
         }
 
-        // Urutkan nilai dari yang tertinggi ke terendah
+        // Urutkan nilai akhir dari yang tertinggi ke terendah untuk menentukan ranking
         arsort($final);
         $ranking    = 1;
         $data_hasil = [];
@@ -227,6 +232,7 @@ class Saw extends CI_Controller
             ];
         }
 
+        // Simpan hasil akhir perhitungan SAW ke tabel hasil
         if ($this->Hasil_model->replace_hasil($user_id, $periode_id, $data_hasil)) {
             $this->session->set_flashdata('success', 'Hasil SAW berhasil disimpan.');
         }
@@ -259,8 +265,9 @@ class Saw extends CI_Controller
         $this->load->view('layout/template', $data);
     }
 
-
-    /*Upload data hasil query metabase format*/
+    /* ====================================================
+     * UPLOAD DATA NILAI DARI FILE EXCEL HASIL QUERY METABASE
+     * ==================================================== */
     public function penilaian_upload(): void
     {
         $user_id    = (int)$this->session->userdata('id');
@@ -279,6 +286,7 @@ class Saw extends CI_Controller
         $file = $_FILES['file_excel'];
         $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
+        // Validasi format file yang diperbolehkan
         if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
             $this->session->set_flashdata('error', 'Format file harus .xlsx, .xls, atau .csv.');
             redirect('saw/penilaian?periode_id=' . $periode_id);
@@ -286,6 +294,7 @@ class Saw extends CI_Controller
 
         require_once APPPATH . '../vendor/autoload.php';
 
+        // Membaca isi file Excel menggunakan library PhpSpreadsheet
         try {
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file['tmp_name']);
             $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
@@ -299,7 +308,7 @@ class Saw extends CI_Controller
             redirect('saw/penilaian?periode_id=' . $periode_id);
         }
 
-        /* ---------- 1. Deteksi kolom dari header SECARA OTOMATIS ---------- */
+        /* ---------- 1. Deteksi kolom dari header secara otomatis ---------- */
         $headerRow = -1;
         $header = [];
 
@@ -335,7 +344,7 @@ class Saw extends CI_Controller
             redirect('saw/penilaian?periode_id=' . $periode_id);
         }
 
-        /* ---------- 2. Cocokkan kolom kriteria berdasarkan kode ATAU nama ---------- */
+        /* ---------- 2. Mencocokkan kolom kriteria berdasarkan kode atau nama ---------- */
         $kriteria_list = $this->Kriteria_model->get_all();
 
         $kriteria_by_kode = [];
@@ -376,7 +385,7 @@ class Saw extends CI_Controller
                 }
             }
 
-            // Header ada isinya tapi tidak cocok kriteria manapun -> catat sebagai kolom tak dikenal
+            // Header memiliki isi namun tidak cocok dengan kriteria manapun -> dicatat sebagai kolom tidak dikenal
             if (!$match) {
                 $kolom_tidak_dikenal[] = $val;
             }
@@ -387,7 +396,7 @@ class Saw extends CI_Controller
             redirect('saw/penilaian?periode_id=' . $periode_id);
         }
 
-        /* ---------- 3. Proses baris data ---------- */
+        /* ---------- 3. Memproses setiap baris data ---------- */
         $baris_diproses   = 0;
         $nilai_diperbarui = 0;
         $skip_notfound    = 0; // kode/nama sama sekali tidak ditemukan
@@ -395,18 +404,18 @@ class Saw extends CI_Controller
         $errors           = [];
 
         foreach ($rows as $i => $row) {
-            if ($i === 0) continue; // header
+            if ($i === 0) continue; // baris header dilewati
 
             $kode_alt    = ($col_kode !== null && isset($row[$col_kode])) ? trim((string)$row[$col_kode]) : '';
             $nama_alt    = ($col_nama !== null && isset($row[$col_nama])) ? trim((string)$row[$col_nama]) : '';
             $jabatan_alt = ($col_jabatan !== null && isset($row[$col_jabatan])) ? trim((string)$row[$col_jabatan]) : '';
 
-            if ($kode_alt === '' && $nama_alt === '') continue; // baris kosong, lewati diam-diam
+            if ($kode_alt === '' && $nama_alt === '') continue; // baris kosong dilewati tanpa pesan error
 
             $baris_no = $i + 1;
             $alt      = null;
 
-            /* ===== ATURAN 1: Ada kode -> match langsung, paling aman ===== */
+            /* Aturan 1: Terdapat kode -> pencocokan langsung (paling akurat) */
             if ($kode_alt !== '') {
                 $alt = $this->Alternatif_model->get_by_kode_and_periode($kode_alt, $periode_id);
 
@@ -420,7 +429,7 @@ class Saw extends CI_Controller
                     continue;
                 }
             }
-            /* ===== ATURAN 2: Tidak ada kode, tapi ada nama + jabatan -> match spesifik ===== */
+            /* Aturan 2: Tanpa kode, namun terdapat nama & jabatan -> pencocokan spesifik */
             elseif ($nama_alt !== '' && $jabatan_alt !== '') {
                 $alt = $this->Alternatif_model->get_by_nama_jabatan_and_periode($nama_alt, $jabatan_alt, $periode_id);
 
@@ -434,7 +443,7 @@ class Saw extends CI_Controller
                     continue;
                 }
             }
-            /* ===== ATURAN 3 & 4: Tidak ada kode & jabatan -> cek keunikan nama ===== */
+            /* Aturan 3 & 4: Tanpa kode & jabatan -> validasi keunikan nama */
             elseif ($nama_alt !== '') {
                 $kandidat        = $this->Alternatif_model->get_all_by_nama_and_periode($nama_alt, $periode_id);
                 $jumlah_kandidat = count($kandidat);
@@ -476,7 +485,7 @@ class Saw extends CI_Controller
 
                 $nilai_raw = trim(str_replace(',', '.', (string)$row[$col_idx]));
 
-                if ($nilai_raw === '') continue; // sel kosong, lewati diam-diam
+                if ($nilai_raw === '') continue; // sel kosong dilewati tanpa pesan error
 
                 if (!is_numeric($nilai_raw)) {
                     $errors[] = [
@@ -497,6 +506,7 @@ class Saw extends CI_Controller
                     continue;
                 }
 
+                // Hapus nilai lama, lalu simpan nilai baru hasil upload
                 $this->Nilai_model->delete_nilai($user_id, $alt_id, $kriteria_id, $periode_id);
                 $this->Nilai_model->insert_nilai([
                     'user_id'       => $user_id,
@@ -509,7 +519,7 @@ class Saw extends CI_Controller
             }
         }
 
-        // Ringkasan: sukses (hijau) jika semua berhasil, error (merah) jika ada yang dilewati
+        // Menyusun ringkasan hasil upload: sukses jika seluruh baris berhasil, error jika ada yang dilewati
         $jumlah_nilai_invalid = count(array_filter($errors, fn($e) => $e['alasan'] === 'nilai_invalid'));
         $total_dilewati = $skip_notfound + $skip_ambigu + $jumlah_nilai_invalid;
 
@@ -532,7 +542,7 @@ class Saw extends CI_Controller
         redirect('saw/penilaian?periode_id=' . $periode_id . '&force_edit=1');
     }
 
-    /*Normalisasi teks untuk pencocokan longgar (case-insensitive, spasi rapi)*/
+    // Normalisasi teks untuk pencocokan longgar (case-insensitive, format spasi rapi)
     private function _normalisasi_teks(string $text): string
     {
         $text = strtolower(trim($text));
